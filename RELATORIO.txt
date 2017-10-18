@@ -1,0 +1,19 @@
+##################################################
+RELATÓRIO por	RODRIGO LEITE DA SILVA 1413150
+##################################################
+--------------------------------------------------
+14/10/2017
+	->Defini as structs que pertencem ao Escalonador
+	
+	A decisão mais importante de se tomar foi de usar a biblioteca <sys/queue.h> para implementar as filas de pids. Isso tomou a maior parte do meu tempo.
+--------------------------------------------------
+
+--------------------------------------------------
+18/10/2017
+	->Terminei de ajeitar o uso de filas.
+	->Defini recebe_processo(), que contém a inserção do novo pid na fila de maior prioridade e o loop de rajadas dos filhos.
+
+	Maior problema, como esperado, foi corrigir os problemas descobertos na implementação da fila.
+	O passo seguinte foi implementar o loop do pai para a alternância do escalonador.
+	A melhor solução que encontrei para o loop do I/O do filho foi que ele execute sozinho mesmo que esteja na fila de espera.
+--------------------------------------------------
