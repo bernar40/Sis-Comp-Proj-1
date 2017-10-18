@@ -15,4 +15,5 @@ RELATÓRIO por	RODRIGO LEITE DA SILVA 1413150
 
 	Maior problema, como esperado, foi corrigir os problemas descobertos na implementação da fila.
 	O passo seguinte foi implementar o loop do pai para a alternância do escalonador.
+	A melhor solução que encontrei para o loop do I/O do filho foi que ele execute sozinho mesmo que esteja na fila de espera.
 --------------------------------------------------

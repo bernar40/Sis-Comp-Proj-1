@@ -91,11 +91,16 @@ void recebe_processo(int tam, int *raj){
 		//LOOP do FILHO
 		for(int i=0;i<tam;i++){
 			for(int j=0;j<raj[i];j++){
-				printf("%d\n",my_pid);
+				printf("%d\n",my_pid);	//Output espacíficado pelo enunciado
 				sleep(1);
 			}
 			//condição I/O
 			kill(getppid(),SIGUSR1);
+			raise(SIGSTOP);				//Para, para permitir que o Pai tome a decisão
+			sleep(3);
+			raise(SIGSTOP);
+			//AQUI SE APLICA A DÚVIDA QUE MANDEI POR E-MAIL, SE FOR DIREITINHO, VOU APLICAR O TRATADOR DE IO PRO FILHO.
+			
 		}
 		//Acabou execução
 		kill(getppid(),SIGUSR2);
@@ -109,3 +114,7 @@ void tratador_w4IO(int signal){}
 
 void tratador_termino_filho(int signal){}
 
+void tratador_tempo_de_IO(int signal){
+
+
+}
