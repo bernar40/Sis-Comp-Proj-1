@@ -17,3 +17,11 @@ RELATÓRIO por	RODRIGO LEITE DA SILVA 1413150
 	O passo seguinte foi implementar o loop do pai para a alternância do escalonador.
 	A melhor solução que encontrei para o loop do I/O do filho foi que ele execute sozinho mesmo que esteja na fila de espera.
 --------------------------------------------------
+
+--------------------------------------------------
+20/10/2017
+	->Comecei a implementar o loop do escalonador
+
+	Testei e resolvi minha dúvida sobre o comportamento do SIGSTOP. Tenho que decidir como fazer a espera do escalonador pelo filho, ou seja, ver se o sleep() se comporta de maneira semelhante.
+	Decidi de vez que tempo_cota deve ser inteiro (devido ao sleep()).
+--------------------------------------------------
