@@ -1,4 +1,5 @@
 //Escalonador
+#include <time.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -67,11 +68,40 @@ void tratador_w4IO(int signal);
 //int *myRajadas=NULL,tVet=0;
 int pai_id = getpid();
 int my_pid = getpid();
-#define EVER ;;
-int main(void){
-	for(EVER);
-}
+int pid_pai = getpid();
 
+signal(SIGUSR1,tratador_w4IO);
+signal(SIGUSR2,tratador_termino_filho);
+int cota=0;
+processo *ativo;
+///LOOP ESCALONADOR///////////////
+for(EVER){
+	if((ativo=STAILQ_FIRST(escal->nivel_1->fila_Prioridade))!=NULL){
+		STAILQ_REMOVE_HEAD(escal->nivel_1->fila_Prioridade);
+		cota = escal->nivel_1->tempo_cota;
+	}
+	else if((ativo=STAILQ_FIRST(escal->nivel_2->fila_Prioridade))!=NULL){
+		STAILQ_REMOVE_HEAD(escal->nivel_2->fila_Prioridade);
+		cota = escal->nivel_2->tempo_cota;
+	}
+	else if((ativo=STAILQ_FIRST(escal->nivel_3->fila_Prioridade))!=NULL){
+		STAILQ_REMOVE_HEAD(escal->nivel_3->fila_Prioridade);
+		cota = escal->nivel_3->tempo_cota;
+	}
+	else continue;
+	///////AGUARDA FILHO//////////////
+	//time_t then=time(&then);
+	
+	kill(ativo->my_pid,SIGCONT);
+	sleep(cota);
+	//ERRADO, PRECISA SER CAPAZ DE ver que o filho não acabou na cota prevista
+	/*waitpid(ativo->my_pid);*/
+	//time_t now=time(&now);
+	//double diff = difftime(now,then);
+	
+	
+	//////////////////////////////////
+}
 
 int pid_pai = getpid();
 signal(SIGUSR1,tratador_w4IO);
@@ -95,24 +125,23 @@ void recebe_processo(int tam, int *raj){
 				sleep(1);
 			}
 			//condição I/O
-			kill(getppid(),SIGUSR1);
-			raise(SIGSTOP);				//Para, para permitir que o Pai tome a decisão
+			raise(SIGSTOP);			//Ativa o WAIT do pai
 			sleep(3);
 			raise(SIGSTOP);
-			//AQUI SE APLICA A DÚVIDA QUE MANDEI POR E-MAIL, SE FOR DIREITINHO, VOU APLICAR O TRATADOR DE IO PRO FILHO.
-			
 		}
 		//Acabou execução
 		kill(getppid(),SIGUSR2);
 	}
-	
+	exit();
 	
 
 }
 //trata o filho estar "waiting for I/O"
-void tratador_w4IO(int signal){}
+void tratador_w4IO(int signal){
+}
 
-void tratador_termino_filho(int signal){}
+void tratador_termino_filho(int signal){
+}
 
 void tratador_tempo_de_IO(int signal){
 
