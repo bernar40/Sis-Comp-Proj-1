@@ -51,7 +51,7 @@ void separador_tempo(char *word, int *exect){
 
 int main (void){
     char input[100];
-    char word[3][100];
+    char word[3][100]; //cada palavra do input vem para ca ------- word[0] = exec | word[1] = nome do programa | word[2] = (2, 10, 4) por exemplo
     char *str;
     int *exect; //execution time - cada elemento eh um tempo em segundos
     exect = (int *)malloc((3*sizeof(int)));
@@ -59,7 +59,7 @@ int main (void){
     {
         separador_input(input, word);
         separador_tempo(word[2], exect);
-        //printf("%s nome: %s tempos: %s\n", word[0], word[1], word[2]);
+        //printf("%s nomedoprograma: %s tempos: %s\n", word[0], word[1], word[2]);
         //printf("t1: %d -- t2: %d -- t3: %d", exect[0], exect[1], exect[2]);
 
         /* CHAMAR O ESCALONADOR AQUI */
