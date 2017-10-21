@@ -6,55 +6,46 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <signal.h>
-#include <sys/queue.h>
-
+#include <fila.h>
+#define DELTA1 1
+#define DELTA2 2
+#define DELTA3 4
 /////////DEFINE PROCESSO//////////
 typedef struct Processo{
 	int my_pid;
-	LIST_ENTRY(Processo) entries;
 }processo;
 
 //////////////INICIA FILAS////////
-STAILQ_HEAD(stailhead, processo) fila_Prioridade_1 = STAILQ_HEAD_INITIALIZER(fila_Prioridade_1);
-STAILQ_HEAD(stailhead, processo) fila_Prioridade_2 = STAILQ_HEAD_INITIALIZER(fila_Prioridade_2);
-STAILQ_HEAD(stailhead, processo) fila_Prioridade_3 = STAILQ_HEAD_INITIALIZER(fila_Prioridade_3);
+Fila *fila_Prioridade_1 = fila_cria (void);
+Fila *fila_Prioridade_2 = fila_cria (void);
+Fila *fila_Prioridade_3 = fila_cria (void);
 
-typedef struct stailhead StailH;
-
-STAILQ_INIT(&fila_Prioridade_1);
-STAILQ_INIT(&fila_Prioridade_2);
-STAILQ_INIT(&fila_Prioridade_3);
 //////////////////////////////////
 
 ////////INICIA NIVEL_PRIORIDADE///
 typedef struct priority_queue{
 	int tempo_cota;
-	StailH *fila_Prioridade;
+	Fila *fila_Prioridade;
 }nivel_prioridade;
 nivel_prioridade *fila_1,*fila_2,*fila_3;
 
 fila_1 = (nivel_prioridade*)malloc(sizeof(nivel_prioridade));
-fila_1->tempo_cota = 1;
-fila_1->fila_Prioridade = &fila_Prioridade_1;
+fila_1->tempo_cota = DELTA1;
+fila_1->fila_Prioridade = fila_Prioridade_1;
 
 fila_2 = (nivel_prioridade*)malloc(sizeof(nivel_prioridade));
-fila_2->tempo_cota = 2;
-fila_2->fila_Prioridade = &fila_Prioridade_2;
+fila_2->tempo_cota = DELTA2;
+fila_2->fila_Prioridade = fila_Prioridade_2;
 
 fila_3 = (nivel_prioridade*)malloc(sizeof(nivel_prioridade));
-fila_3->tempo_cota = 4;
-fila_3->fila_Prioridade = &fila_Prioridade_3;
+fila_3->tempo_cota = DELTA3;
+fila_3->fila_Prioridade = fila_Prioridade_3;
 //////////////////////////////////
 
 /////INICIA ESCALONADOR///////////
 typedef struct Escalonador{
 	nivel_prioridade nivel_1, nivel_2, nivel_3;
-	/*
-	pid_executando
-	cota_do_pid_executando
-	cota_nivel_atual?
-	fila_pid_em_IO? ou 
-	*/
+	processo *ativo;
 }escalonador;
 
 escalonador *escal = (escalonador*)malloc(sizeof(escalonador))
@@ -76,16 +67,16 @@ int cota=0;
 processo *ativo;
 ///LOOP ESCALONADOR///////////////
 for(EVER){
-	if((ativo=STAILQ_FIRST(escal->nivel_1->fila_Prioridade))!=NULL){
-		STAILQ_REMOVE_HEAD(escal->nivel_1->fila_Prioridade);
+	if(!fila_vazia(escal->nivel_1->fila_Prioridade)){
+		escal->ativo = (processo*)fila_retira(escal->nivel_1->fila_Prioridade);
 		cota = escal->nivel_1->tempo_cota;
 	}
-	else if((ativo=STAILQ_FIRST(escal->nivel_2->fila_Prioridade))!=NULL){
-		STAILQ_REMOVE_HEAD(escal->nivel_2->fila_Prioridade);
+	else if(!fila_vazia(escal->nivel_2->fila_Prioridade)){
+		escal->ativo = (processo*)fila_retira(escal->nivel_2->fila_Prioridade);
 		cota = escal->nivel_2->tempo_cota;
 	}
-	else if((ativo=STAILQ_FIRST(escal->nivel_3->fila_Prioridade))!=NULL){
-		STAILQ_REMOVE_HEAD(escal->nivel_3->fila_Prioridade);
+	else if(!fila_vazia(escal->nivel_3->fila_Prioridade)){
+		escal->ativo = (processo*)fila_retira(escal->nivel_3->fila_Prioridade);
 		cota = escal->nivel_3->tempo_cota;
 	}
 	else continue;
@@ -111,7 +102,7 @@ void recebe_processo(int tam, int *raj){
 	if((pid=fork())!=0){	//PAI
 		processo *new_processo = (processo*) malloc(sizeof(processo));
 		new_processo->my_pid = pid;
-		STAILQ_INSERT_TAIL((escal->nivel_1->fila_prioridade),new_processo, entries);
+		fila_insere((escal->nivel_1->fila_prioridade),new_processo);
 	}
 	else if(pid == 0){
 		my_pid = getpid();
