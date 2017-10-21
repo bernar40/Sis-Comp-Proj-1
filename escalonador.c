@@ -1,5 +1,4 @@
 //Escalonador
-#include <time.h>
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
@@ -10,6 +9,7 @@
 #define DELTA1 1
 #define DELTA2 2
 #define DELTA3 4
+#define ESPERA 1	//Quanto o escalonador espera para verificar as filas novamente se ela estiver vazia
 /////////DEFINE PROCESSO//////////
 typedef struct Processo{
 	int my_pid;
@@ -42,10 +42,24 @@ fila_3->tempo_cota = DELTA3;
 fila_3->fila_Prioridade = fila_Prioridade_3;
 //////////////////////////////////
 
+
+/////DECLARAÇÕES//////////////////
+int cota=0;
+int my_pid = getpid();
+void recebe_processo(int tam, int *raj);
+void tratador_w4IO(int signal);
+void aumenta_prioridade();
+void diminui_prioridade();
+signal(SIGUSR1,tratador_w4IO);
+signal(SIGUSR2,tratador_termino_filho);
+//////////////////////////////////
+
 /////INICIA ESCALONADOR///////////
 typedef struct Escalonador{
 	nivel_prioridade nivel_1, nivel_2, nivel_3;
 	processo *ativo;
+	bool cpu_bound;
+	bool terminou;
 }escalonador;
 
 escalonador *escal = (escalonador*)malloc(sizeof(escalonador))
@@ -53,18 +67,7 @@ escal->nivel_1 = fila_1
 escal->nivel_2 = fila_2
 escal->nivel_3 = fila_3
 //////////////////////////////////
-void recebe_processo(int tam, int *raj);
-void tratador_w4IO(int signal);
 
-//int *myRajadas=NULL,tVet=0;
-int pai_id = getpid();
-int my_pid = getpid();
-int pid_pai = getpid();
-
-signal(SIGUSR1,tratador_w4IO);
-signal(SIGUSR2,tratador_termino_filho);
-int cota=0;
-processo *ativo;
 ///LOOP ESCALONADOR///////////////
 for(EVER){
 	if(!fila_vazia(escal->nivel_1->fila_Prioridade)){
@@ -79,24 +82,66 @@ for(EVER){
 		escal->ativo = (processo*)fila_retira(escal->nivel_3->fila_Prioridade);
 		cota = escal->nivel_3->tempo_cota;
 	}
-	else continue;
+	else {
+		printf("\nFilas Vazias, aguardo %ds",ESPERA);
+		sleep(ESPERA);
+		continue;
+	}
 	///////AGUARDA FILHO//////////////
-	//time_t then=time(&then);
-	
-	kill(ativo->my_pid,SIGCONT);
+	escal->cpu_bound = TRUE;
+	escal->terminou = FALSE;
+	kill(escal->ativo->my_pid,SIGCONT);
 	sleep(cota);
-	//ERRADO, PRECISA SER CAPAZ DE ver que o filho não acabou na cota prevista
-	/*waitpid(ativo->my_pid);*/
-	//time_t now=time(&now);
-	//double diff = difftime(now,then);
-	
-	
+	if(escal->terminou){
+		printf("\n#######################\nProcesso: %d terminou\n#######################",escal->ativo->my_pid);
+		free(escal->ativo);
+	}
+	else{
+		if(escal->cpu_bound){
+			kill(escal->ativo->my_pid,SIGSTOP);
+			diminui_prioridade();
+		}
+		else{
+			aumenta_prioridade();
+		}
+	}
 	//////////////////////////////////
 }
+//////////////////////////////////
 
-int pid_pai = getpid();
-signal(SIGUSR1,tratador_w4IO);
-signal(SIGUSR2,tratador_termino_filho);
+
+//////MODIFICA PRIORIDADE/////////
+void diminui_prioridade(){
+	switch(cota){
+		case DELTA1:
+			fila_insere((escal->nivel_2->fila_Prioridade),escal->ativo);
+		break;
+		case DELTA2:
+			fila_insere((escal->nivel_3->fila_Prioridade),escal->ativo);
+		
+		break;
+		case DELTA3:
+			fila_insere((escal->nivel_3->fila_Prioridade),escal->ativo);
+		break;
+	}
+}
+void aumenta_prioridade(){
+	switch(cota){
+		case DELTA1:
+			fila_insere((escal->nivel_1->fila_Prioridade),escal->ativo);
+		break;
+		case DELTA2:
+			fila_insere((escal->nivel_1->fila_Prioridade),escal->ativo);
+		
+		break;
+		case DELTA3:
+			fila_insere((escal->nivel_2->fila_Prioridade),escal->ativo);
+		break;
+	}
+}
+//////////////////////////////////
+
+//////FUNÇÃO PARA INTERPRETADOR///
 void recebe_processo(int tam, int *raj){
 	int pid;
 	if((pid=fork())!=0){	//PAI
@@ -112,29 +157,30 @@ void recebe_processo(int tam, int *raj){
 		//LOOP do FILHO
 		for(int i=0;i<tam;i++){
 			for(int j=0;j<raj[i];j++){
-				printf("%d\n",my_pid);	//Output espacíficado pelo enunciado
+				printf("\n%d",my_pid);	//Output espacíficado pelo enunciado
 				sleep(1);
 			}
 			//condição I/O
-			raise(SIGSTOP);			//Ativa o WAIT do pai
+			kill(getppid(),SIGUSR1);
 			sleep(3);
 			raise(SIGSTOP);
 		}
 		//Acabou execução
 		kill(getppid(),SIGUSR2);
+		exit();
 	}
-	exit();
 	
 
 }
+//////////////////////////////////
+
+///////TRATADORES DE SINAL////////
 //trata o filho estar "waiting for I/O"
+//indica que o filho terminou antes que o pai, ao mesmo tempo despertando-o do sono
 void tratador_w4IO(int signal){
+	escal->cpu_bound = FALSE;
 }
 
 void tratador_termino_filho(int signal){
-}
-
-void tratador_tempo_de_IO(int signal){
-
-
+	escal->terminou = TRUE;
 }
