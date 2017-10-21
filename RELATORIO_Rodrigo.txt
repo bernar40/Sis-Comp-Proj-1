@@ -25,3 +25,10 @@ RELATÓRIO por	RODRIGO LEITE DA SILVA 1413150
 	Testei e resolvi minha dúvida sobre o comportamento do SIGSTOP. Tenho que decidir como fazer a espera do escalonador pelo filho, ou seja, ver se o sleep() se comporta de maneira semelhante.
 	Decidi de vez que tempo_cota deve ser inteiro (devido ao sleep()).
 --------------------------------------------------
+21/10/2017
+	->Adaptei o módulo fila do Bernardo para armazenar um elemento genérico.
+	->Adaptei escalonador.c com o novo módulo fila
+	
+	Não me senti confiante que entendi que entendi o módulo <sys/queue.h>, então reaproveitamos o módulo fila criado por Bernardo em outro período, só mudei o conteúdo de um nó de int para (void*).
+--------------------------------------------------
+
