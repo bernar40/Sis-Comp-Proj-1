@@ -14,7 +14,7 @@
 
 struct noLista
 {
-    int info;
+    (void*) info;
     struct noLista* prox;
     
 };
@@ -43,7 +43,7 @@ Fila* fila_cria (void)
     return f;
 }
 
-void fila_insere (Fila* f, int m)
+void fila_insere (Fila* f, (void*) m)
 {
     NoLista *novo = (NoLista *)malloc(sizeof(NoLista));
     
@@ -59,7 +59,7 @@ void fila_insere (Fila* f, int m)
     f->fim = novo; /* fila aponta para novo elemento */
 }
 
-int fila_retira (Fila* f)
+(void*) fila_retira (Fila* f)
 {
     NoLista * t;
     float v;
