@@ -1,0 +1,35 @@
+﻿##################################################
+RELATÓRIO por BERNARDO COSTA RUGA 1511651 e RODRIGO LEITE DA SILVA 1413150
+##################################################
+--------------------------------------------------
+14/10/2017
+	->Defini as structs que pertencem ao Escalonador
+	
+	A decisão mais importante de se tomar foi de usar a biblioteca <sys/queue.h> para implementar as filas de pids. Isso tomou a maior parte do meu tempo.
+--------------------------------------------------
+
+--------------------------------------------------
+18/10/2017
+	->Terminei de ajeitar o uso de filas.
+	->Defini recebe_processo(), que contém a inserção do novo pid na fila de maior prioridade e o loop de rajadas dos filhos.
+
+	Maior problema, como esperado, foi corrigir os problemas descobertos na implementação da fila.
+	O passo seguinte foi implementar o loop do pai para a alternância do escalonador.
+	A melhor solução que encontrei para o loop do I/O do filho foi que ele execute sozinho mesmo que esteja na fila de espera.
+--------------------------------------------------
+
+--------------------------------------------------
+20/10/2017
+	->Comecei a implementar o loop do escalonador
+
+	Testei e resolvi minha dúvida sobre o comportamento do SIGSTOP. Tenho que decidir como fazer a espera do escalonador pelo filho, ou seja, ver se o sleep() se comporta de maneira semelhante.
+	Decidi de vez que tempo_cota deve ser inteiro (devido ao sleep()).
+--------------------------------------------------
+
+--------------------------------------------------
+21/10/2017
+	->Implementado o interpretador
+
+	Agora ele executa e espera um stdin do teclado, ele então trata o input e divide as palavras em "exec", "nomedoprograma" e "(tempos)".
+    Apos isso, ele divide os tempos e os transforma de char para int, e os pôem em um array pronto para ser enviado ao escalonador.
+--------------------------------------------------
