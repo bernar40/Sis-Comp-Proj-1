@@ -34,6 +34,13 @@ RELATÓRIO por	RODRIGO LEITE DA SILVA 1413150
 	
 	Não me senti confiante que entendi que entendi o módulo <sys/queue.h>, então reaproveitamos o módulo fila criado por Bernardo em outro período, só mudei o conteúdo de um nó de int para (void*).
 	A interpretação se um um filho foi cpu_bound/io_bound/terminou está sendo determinada através de variáveis booleanas.
-	Embora tenha terminado, ainda deve estar bem problemático, pois 
+	Embora tenha terminado, ainda deve estar bem problemático, pois ainda não foi testado.
 --------------------------------------------------
 
+--------------------------------------------------
+22/10/2017
+	->Corrigi erros de compilação
+
+	Ao ser executado, escalonador entra no modo dormente esperado.
+	Resta-nos testar com o interpretador.
+--------------------------------------------------

@@ -1,4 +1,4 @@
-//
+/*//
 //  fila_lista.c
 //  Lista
 //
@@ -6,15 +6,15 @@
 //  Copyright © 2016 Bernardo Ruga. All rights reserved.
 //
 
-#include "fila_lista.h"
+/* estrutura da fila */
+
+#include "fila.h"
 #include <stdio.h>
 #include <stdlib.h>
 
-/* estrutura da fila */
-
 struct noLista
 {
-    (void*) info;
+    void* info;
     struct noLista* prox;
     
 };
@@ -43,7 +43,7 @@ Fila* fila_cria (void)
     return f;
 }
 
-void fila_insere (Fila* f, (void*) m)
+void fila_insere (Fila* f, void* m)
 {
     NoLista *novo = (NoLista *)malloc(sizeof(NoLista));
     
@@ -59,10 +59,10 @@ void fila_insere (Fila* f, (void*) m)
     f->fim = novo; /* fila aponta para novo elemento */
 }
 
-(void*) fila_retira (Fila* f)
+void* fila_retira (Fila* f)
 {
     NoLista * t;
-    float v;
+    void *v;
     if (fila_vazia(f))
     {
         printf("Fila vazia.\n");
