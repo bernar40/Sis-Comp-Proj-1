@@ -41,7 +41,7 @@ int main (void){
     while (fgets(input, 100, stdin)) //repete sempre pegando input do teclado
     {
         separador_input(input, word, 2);
-        exect = separador_tempo(word[2], &tam);
+        //exect = separador_tempo(word[2], &tam);
 
         /* CHAMAR O ESCALONADOR AQUI */
 
@@ -53,9 +53,10 @@ int main (void){
 
         
         fpFIFO_tempos = abre_fifo_write(fpFIFO_tempos, FIFO_tempos);
-        for (i = 0; i<tam; i++){
+        /*for (i = 0; i<tam; i++){
             write(fpFIFO_tempos, &exect[i], sizeof(int));
-        }
+        }*/
+        write(fpFIFO_tempos, word[3], sizeof(word[3]));
 
         
         close(fpFIFO_tam);
