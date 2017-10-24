@@ -8,16 +8,18 @@
 #include <string.h>
 #include <signal.h>
 #include <ctype.h>
-#include "escalonador.h"
-#define FIFO1 "/home/bcruga/Documents/inf1019/proj1/Sis-Comp-Proj-1/myfifo1"
-#define FIFO2 "/home/bcruga/Documents/inf1019/proj1/Sis-Comp-Proj-1/myfifo2"
+#include "fifo.h"
+
 /*
 como executar o programa
 exec <programa8exec81> (2, 10, 4)  // rajadas de 2, 10, 4 segundos, interrompidas por I/O
 exec <programa8exec81> (20, 20, 2) // rajadas de 20, 20, e 2 segundos, interrompidas por I/O
 */
-void separador_input(char *input, char word[3][100]);
-void separador_tempo(char *word, int *exect);
+
+void separador_input(char *input, char word[3][100], int identificador);
+int *separador_tempo(char *word, int *tam);
+int num_espacos(char *str);
+
 
 int main (void){
     char input[100];
@@ -25,86 +27,92 @@ int main (void){
     char *str;
     int *exect; //execution time - cada elemento eh um tempo em segundos
     int tam, i;
-    int fpFIFO1, fpFIFO2;
-    remove(FIFO1);
-    remove(FIFO2);
+    int fpFIFO_nome, fpFIFO_tam, fpFIFO_tempos;
+    //remove os arquivos FIFOS para nao dar erro na criacao
+    remove(FIFO_nome); 
+    remove(FIFO_tam);
+    remove(FIFO_tempos);
 
-    if(access(FIFO1, F_OK) == -1){
-        if (mkfifo(FIFO1, S_IRUSR | S_IWUSR) != 0){ //Cria o fifo com as devidas permissoes
-            puts("Erro ao criar a FIFO1\n");
-            return -1;
-        }
-    }
-
-    if(access(FIFO2, F_OK) == -1){
-        if (mkfifo(FIFO2, S_IRUSR | S_IWUSR) != 0){ //Cria o segundo fifo, um sera para o tamanho e outro para o vetor
-            puts("Erro ao criar a FIFO2\n"); 
-            return -1;
-        }
-    }
-
-    exect = (int *)malloc((3*sizeof(int))); //TEM QUE MUDAR ISSO POIS NAO SAO SO 3 TEMPOS
+    cria_fifo(FIFO_nome);
+    cria_fifo(FIFO_tam);
+    cria_fifo(FIFO_tempos);
 
     printf("Digite seu processo:\n");
     while (fgets(input, 100, stdin)) //repete sempre pegando input do teclado
     {
-
-        separador_input(input, word);
-        separador_tempo(word[2], exect);
+        separador_input(input, word, 2);
+        exect = separador_tempo(word[2], &tam);
 
         /* CHAMAR O ESCALONADOR AQUI */
-        tam = (sizeof(exect)/sizeof(int)) + 1;
-        if ((fpFIFO1 = open(FIFO1, O_WRONLY)) < 0){//Abre o fifo para escrita e bloqueia, ele espera os dados serem recebidos 
-            puts("Erro ao abrir a FIFO1\n");
-            return -2;
-        }
-        write(fpFIFO1, &tam, sizeof(tam));
 
-        if ((fpFIFO2 = open(FIFO2, O_WRONLY)) < 0){//Abre o fifo para escrita e bloqueia, ele espera os dados serem recebidos
-            puts("Erro ao abrir a FIFO2\n");
-            return -2;
+        fpFIFO_nome = abre_fifo_write(fpFIFO_nome, FIFO_nome);
+        write(fpFIFO_nome, word[1], sizeof(word[1]));
+
+        fpFIFO_tam = abre_fifo_write(fpFIFO_tam, FIFO_tam);
+        write(fpFIFO_tam, &tam, sizeof(int));
+
+        
+        fpFIFO_tempos = abre_fifo_write(fpFIFO_tempos, FIFO_tempos);
+        for (i = 0; i<tam; i++){
+            write(fpFIFO_tempos, &exect[i], sizeof(int));
         }
-        for (i = 0; i<tam+1; i++)
-            write(fpFIFO2, &exect[i], sizeof(exect[i]));
-        close(fpFIFO1);
-        close(fpFIFO2);
+
+        
+        close(fpFIFO_tam);
+        close(fpFIFO_tempos);
+        close(fpFIFO_nome);
+
         printf("Processo enviado ao escalonador!\n");
         printf("Digite seu novo processo:\n");
-            
     }
     return 0;
 }
 
-
-
-void separador_input(char *input, char word[3][100]){
+void separador_input(char *input, char word[3][100], int identificador){ //funcao para separar as palavras da string, ou seja separa as palavras dividias por espaco
     int i= 0, j=0, k=0;
     input[strlen(input) - 1] = '\0';
     if (input[0] == '\0') //checa se o input foi vazio
         printf("Input invalido.\n");
+
     while (input[i] != '\0') {
-        if (input[i] == ' ' && k<2) { // ' ' -> primeiro separador
-                word[k][j] = '\0';
-                j = 0;
-                k++;
+        if (input[i] == ' ' && k<identificador) { // ' ' -> primeiro separador o identificador eh para quando for 2, separar a entrada do teclado e outro valor para quando for os tempos
+            word[k][j] = '\0';
+            j = 0;
+            k++;
         }
         else {
-                word[k][j++] = input[i];
+            word[k][j++] = input[i];
         }
         i++;
     }
     word[k][j] = '\0'; //ultima palavra TEMPO
 }
 
-void separador_tempo(char *word, int *exect){
+int *separador_tempo(char *word, int *tam){ //funcao para separar a string de tempos -> ex. (2, 10, 4)
     char str[100];
-    char tempo_s[3][100];
+    int i;
+    *tam = num_espacos(word);
+    char tempo_s[*tam][100];
+    int *exect = (int *)malloc(((*tam)*sizeof(int)));
+     
     const char s[2] = "(";
     char *token;
 
-    separador_input(word, tempo_s);
+    separador_input(word, tempo_s, *tam);
     token = strtok(tempo_s[0], s); //remove o parenteses do primeiro tempo.
-    exect[0] = atoi(token);
-    exect[1] = atoi(tempo_s[1]);
-    exect[2] = atoi(tempo_s[2]);
+    exect[0] = atoi(token); // poe no vetor o primeiro elemento que precisa de mais um tratamentozinho por causa do '('
+    for (i=1; i<*tam; i++) // poe no vetor de tempo os valores
+        exect[i] = atoi(tempo_s[i]);
+
+    return exect;
+}
+
+int num_espacos(char *str){ //funcao para contar os numeros de espacos numa string
+    int space;
+    for (space = 0; *str; str++){
+        if (*str != ' ')
+            continue;
+        space++;
+    }
+    return space +1;
 }

@@ -5,8 +5,10 @@
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <fcntl.h>
 #include <signal.h>
 #include "fila.h"
+#include "fifo.h"
 #define DELTA1 1
 #define DELTA2 2
 #define DELTA3 4
@@ -37,6 +39,7 @@ void recebe_processo(int tam, int *raj);
 void tratador_w4IO(int signal);
 void aumenta_prioridade();
 void diminui_prioridade();
+void test();
 escalonador *escal;
 int main(void){
 	//////////////INICIA FILAS////////
@@ -90,7 +93,8 @@ int main(void){
 			escal->cota = escal->nivel_3->tempo_cota;
 		}
 		else {
-			printf("\nFilas Vazias, aguardo %ds",ESPERA);
+			printf("\nFilas Vazias, aguardo %d\n",ESPERA);
+			test();
 			sleep(ESPERA);
 			continue;
 		}
@@ -157,6 +161,11 @@ void aumenta_prioridade(escalonador *escal){
 void recebe_processo(int tam, int *raj){
 	int pid;
 	int my_pid;
+	int i,j;
+	int fd;
+	char *myfifo = "/tmp/myfifo";
+	char buf[1024];
+
 	if((pid=fork())!=0){	//PAI
 		processo *new_processo = (processo*) malloc(sizeof(processo));
 		new_processo->my_pid = pid;
@@ -168,8 +177,12 @@ void recebe_processo(int tam, int *raj){
 		signal(SIGUSR2,SIG_DFL);
 		raise(SIGSTOP);
 		//LOOP do FILHO
-		for(int i=0;i<tam;i++){
-			for(int j=0;j<raj[i];j++){
+		fd = open(myfifo, O_RDONLY);
+		read(fd, buf, 1024);
+		printf("Received: %s \n", buf);
+		close(fd);
+		for(i=0;i<tam;i++){
+			for(j=0;j<raj[i];j++){
 				printf("\n%d",my_pid);	//Output espacíficado pelo enunciado
 				sleep(1);
 			}
@@ -196,4 +209,31 @@ void tratador_w4IO(int signal){
 
 void tratador_termino_filho(int signal){
 	escal->terminou = 1;
+}
+
+void test(){
+	int fpFIFO_nome, fpFIFO_tam, fpFIFO_tempos;
+	int tam;
+	int *exect;
+	char name[MAX_BUF];
+	int i;
+
+    fpFIFO_nome = abre_fifo_read(fpFIFO_nome, FIFO_nome); //abre FIFO
+	read(fpFIFO_nome, name, sizeof(MAX_BUF)); //le o nome do programa e o poe no vetor name
+	printf("%s\n", name);
+
+	fpFIFO_tam = abre_fifo_read(fpFIFO_tam, FIFO_tam);
+	read(fpFIFO_tam, &tam, sizeof(int)); //le o tam do vetor exect no interpretador pra criar um igual aqui e o poe na var tam name
+	printf("%d\n", tam);
+
+	fpFIFO_tempos = abre_fifo_read(fpFIFO_tempos, FIFO_tempos);
+	exect = (int *)malloc((tam*sizeof(int)));
+	for (i=0; i<tam; i++){
+		read(fpFIFO_tempos, &exect[1], sizeof(int)); //le cada indice do vetor exect no interpretador e os poe no vetor exect
+		printf("%d\n",exect[1]);
+	}
+	//fecha os FIFOs
+	close(fpFIFO_nome); 
+	close(fpFIFO_tam);
+	close(fpFIFO_tempos);
 }
