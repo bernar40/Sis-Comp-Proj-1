@@ -41,3 +41,15 @@ RELATÓRIO por BERNARDO COSTA RUGA 1511651 e RODRIGO LEITE DA SILVA 1413150
 	Os programas interpretador e escalonador se comunicarao via FIFO, hoje consegui implementar o FIFO no interpretador para que mandasse seus dados relevantes e fiz um programa teste para checar se os receberia.
 	Deu certo, o interpretador esta manda seus dados e o programa teste os recebe por inteiro. Agora falta implementar a recepcao dos dados no escalonador.
 --------------------------------------------------
+--------------------------------------------------
+23/10/2017
+	->Interpretador pronto
+
+	Antes o interpretador aceitava apenas 3 tempos, agora ja aceita qualquer quantidade. Tambem o FIFO do interpretador esta 1005 implementado. Ele envia para os fifos o nome do programa a ser executado, o tamanho do vetor com os tempos e os valores dos tempos em forma de vetor para o escalonador
+--------------------------------------------------
+--------------------------------------------------
+23/10/2017
+	->Conexao estabelecida
+
+	Agora o interpretador e o escalonador conseguem se comunicar por meio de FIFO, o escalonador recebe todos os argumentos mandados pelo interpretador e por enquanto so os printa na tela. Porem o nome do programa esta printando de maneira estranha, ha de se consertar isso.
+--------------------------------------------------
