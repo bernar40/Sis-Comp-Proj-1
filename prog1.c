@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <signal.h>
+#include <unistd.h>
 #include "tratador.h"
 #define CHAR sizeof(char)
 int decodifica_params(int **vet,char *params);
