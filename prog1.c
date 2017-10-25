@@ -1,16 +1,26 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <signal.h>
+#include "tratador.h"
 #define CHAR sizeof(char)
 int decodifica_params(int **vet,char *params);
 
+
+
 int main(int argc,char *argv[]){
-	char *params = argv[0];
-	int *raj, tam=decodifica_params(&raj,params);
+	char *params = argv[1];
+	int *raj, tam;
+	printf("%s\n", params);
+	int i, j;
+	int my_pid = getpid();
+
+	raj = separador_tempo(params, &tam);
+
 	raise(SIGSTOP);
-	for(int i=0;i<tam;i++){
-		for(int j=0;j<raj[i];j++){
-			printf("\n%d",my_pid);	//Output espacíficado pelo enunciado
+	for(i=0;i<tam;i++){
+		for(j=0;j<raj[i];j++){
+			printf("%d\n",my_pid);	//Output espacíficado pelo enunciado
 			sleep(1);
 		}
 		//condição I/O
@@ -21,24 +31,4 @@ int main(int argc,char *argv[]){
 	//Acabou execução
 	kill(getppid(),SIGUSR2);
 	exit(0);
-}
-int decodifica_params(int **vet,char *params){
-	int tam=1;
-	int temp=0;
-	char *init, *end;
-	if(params[0]!="("){
-		printf("\nprog1 recebeu parâmetro: não comecou com \"(\"");
-		exit(0);
-	}
-	init = params+CHAR;
-	for(int i=0;params[i]!=")";i++)
-		if(params[i]==",")
-			tam++;
-	*vet = (int*)malloc(sizeof(int)*tam);
-	do{
-		*vet[temp] = strtol(init,&end,10);
-		init = end;
-		temp++;
-	}while(*init!=")");
-	return tam;
 }
