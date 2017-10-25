@@ -1,4 +1,6 @@
 #include <stdio.h>
+#include <string.h>
+#include <stdlib.h>
 #define CHAR sizeof(char)
 int decodifica_params(int **vet,char *params);
 

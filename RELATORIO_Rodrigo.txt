@@ -44,3 +44,13 @@ RELATÓRIO por	RODRIGO LEITE DA SILVA 1413150
 	Ao ser executado, escalonador entra no modo dormente esperado.
 	Resta-nos testar com o interpretador.
 --------------------------------------------------
+
+--------------------------------------------------
+24/10/2017
+	->Cria prog1, programa a ser executado pelo filho do escalonador.
+	->Agora prog1 decodifica seu parâmetro, a string com a duração das rajadas.
+	
+	Dia 23(ontem) me dei conta que a abordagem para execução simultânea estava erradíssima.
+	Depois de conversar com Endler, descobrimos que deixar no código do próprio escalonador a simulação das rajadas está incorreto. prog1 é criado como substituto.
+	Função strtol() ajudou a decodificar.
+--------------------------------------------------
