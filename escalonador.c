@@ -73,6 +73,7 @@ int main(void){
 	
 	/////DECLARAÇÕES//////////////////
 	int my_pid = getpid();
+	printf("PID Escalonador: %d\n", my_pid);
 	signal(SIGCONT,tratador_interpretador);
 	signal(SIGUSR1,tratador_w4IO);
 	signal(SIGCHLD,tratador_fimIO);
@@ -176,9 +177,10 @@ void aumenta_prioridade(processo *proc){
 
 //////FUNÇÃO PARA INTERPRETADOR///
 void recebe_processo(){
+
 	int pid;
 	int my_pid;
-
+	char *argv[3];
 	int fpFIFO_nome, fpFIFO_tam, fpFIFO_tempos;
 	int tam;
 	int *exect;
@@ -197,11 +199,19 @@ void recebe_processo(){
 	}
 	else if(pid == 0){
 		my_pid = getpid();
-		char *argv[2];
 		signal(SIGUSR1,SIG_DFL);
 		signal(SIGUSR2,SIG_DFL);
 		signal(SIGCHLD,SIG_DFL);
 		signal(SIGCONT,SIG_DFL);
+
+	    remove(FIFO_nome); 
+	    remove(FIFO_tam);
+	    remove(FIFO_tempos);
+
+	    cria_fifo(FIFO_nome);
+	    cria_fifo(FIFO_tam);
+	    cria_fifo(FIFO_tempos);
+
 		//LOOP do FILHO
 		/*fd = open(myfifo, O_RDONLY);
 		read(fd, buf, 1024);
@@ -210,11 +220,11 @@ void recebe_processo(){
 		
 	    fpFIFO_nome = abre_fifo_read(fpFIFO_nome, FIFO_nome); //abre FIFO
 		read(fpFIFO_nome, name, MAX_BUF); //le o nome do programa e o poe no vetor name
-		printf("%s\n", name);
+		printf("Nome do programa: %s\n", name);
 
 		fpFIFO_tam = abre_fifo_read(fpFIFO_tam, FIFO_tam);
 		read(fpFIFO_tam, &tam, sizeof(int)); //le o tam do vetor exect no interpretador pra criar um igual aqui e o poe na var tam name
-		printf("%d\n", tam);
+		printf("Dado recebido (Tam): %d\n", tam);
 
 		fpFIFO_tempos = abre_fifo_read(fpFIFO_tempos, FIFO_tempos);
 		exect = (int *)malloc((tam*sizeof(int)));
@@ -225,15 +235,17 @@ void recebe_processo(){
 		
 		//read adaptado
 		read(fpFIFO_tempos, params, MAX_BUF);
+		printf("Tempos: %s\n", params);
 		
 		//fecha os FIFOs
 		close(fpFIFO_nome); 
 		close(fpFIFO_tam);
 		close(fpFIFO_tempos);
 
-		argv[0] = params;
-		argv[1] = NULL;
-	
+		argv[0] = name;
+		argv[1] = params;
+		argv[2] = NULL;
+
 		execv(name, argv);
 		
 	}

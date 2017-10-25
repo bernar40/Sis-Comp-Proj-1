@@ -23,7 +23,7 @@ int main (int argc, char *argv[]){
     char word[3][100]; //cada palavra do input vem para ca ------- word[0] = exec | word[1] = nome do programa | word[2] = (2, 10, 4) por exemplo
     char *str;
     int *exect; //execution time - cada elemento eh um tempo em segundos
-    int tam, i;
+    int tam, i, last;
     int fpFIFO_nome, fpFIFO_tam, fpFIFO_tempos;
     int size1, size2;
     //remove os arquivos FIFOS para nao dar erro na criacao
@@ -38,6 +38,7 @@ int main (int argc, char *argv[]){
     printf("Digite seu processo:\n");
     while (fgets(input, 100, stdin)) //repete sempre pegando input do teclado
     {
+
         separador_input(input, word, 2);
         exect = separador_tempo(word[2], &tam);
 
@@ -45,11 +46,10 @@ int main (int argc, char *argv[]){
 
         fpFIFO_nome = abre_fifo_write(fpFIFO_nome, FIFO_nome);
         size1 = strlen(word[1]) + 1;
-        printf("%d\n", size1);
         write(fpFIFO_nome, word[1], size1);
 
         fpFIFO_tam = abre_fifo_write(fpFIFO_tam, FIFO_tam);
-        printf("%d\n", tam);
+        //printf("%d\n", tam);
         write(fpFIFO_tam, &tam, sizeof(int));
 
         
@@ -57,7 +57,11 @@ int main (int argc, char *argv[]){
         /*for (i = 0; i<tam; i++){
             write(fpFIFO_tempos, &exect[i], sizeof(int));
         }*/
+        last = strlen(word[2]);
+        word[2][last] = ')';
+        word[2][last+1] = '\0';
         size2 = strlen(word[2]) + 1;
+        //printf("word[2] = %s -- size2 = %d\n", word[2], size2);
         write(fpFIFO_tempos, word[2], size2);
 
         

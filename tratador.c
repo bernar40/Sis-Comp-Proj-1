@@ -8,7 +8,7 @@
 void separador_input(char *input, char word[3][100], int identificador){ //funcao para separar as palavras da string, ou seja separa as palavras dividias por espaco
     int i= 0, j=0, k=0;
     input[strlen(input) - 1] = '\0';
-    if (input[0] == '\0' || input[0] != '('){
+    if (input[0] == '\0'){
         //checa se o input foi vazio ou invalido
         printf("Input invalido.\n");
         exit(-1);
@@ -27,6 +27,7 @@ void separador_input(char *input, char word[3][100], int identificador){ //funca
     }
     word[k][j] = '\0'; //ultima palavra TEMPO
 }
+
 
 int *separador_tempo(char *word, int *tam){ //funcao para separar a string de tempos -> ex. (2, 10, 4)
     char str[100];

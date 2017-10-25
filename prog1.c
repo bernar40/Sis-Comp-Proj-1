@@ -12,7 +12,6 @@ int decodifica_params(int **vet,char *params);
 int main(int argc,char *argv[]){
 	char *params = argv[1];
 	int *raj, tam;
-	printf("%s\n", params);
 	int i, j;
 	int my_pid = getpid();
 
@@ -20,6 +19,7 @@ int main(int argc,char *argv[]){
 
 	raise(SIGSTOP);
 	for(i=0;i<tam;i++){
+		printf("%d\n", raj[i]);
 		for(j=0;j<raj[i];j++){
 			printf("%d\n",my_pid);	//Output espacíficado pelo enunciado
 			sleep(1);
@@ -32,5 +32,5 @@ int main(int argc,char *argv[]){
 	}
 	//Acabou execução
 	kill(getppid(),SIGUSR2);
-	exit(0);
+	return 0;
 }
