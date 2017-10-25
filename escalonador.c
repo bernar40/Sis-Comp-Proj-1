@@ -209,7 +209,7 @@ void recebe_processo(){
 		close(fd);*/
 		
 	    fpFIFO_nome = abre_fifo_read(fpFIFO_nome, FIFO_nome); //abre FIFO
-		read(fpFIFO_nome, name, sizeof(MAX_BUF)); //le o nome do programa e o poe no vetor name
+		read(fpFIFO_nome, name, MAX_BUF); //le o nome do programa e o poe no vetor name
 		printf("%s\n", name);
 
 		fpFIFO_tam = abre_fifo_read(fpFIFO_tam, FIFO_tam);
@@ -224,8 +224,7 @@ void recebe_processo(){
 		}*/
 		
 		//read adaptado
-		read(fpFIFO_tempos, params, sizeof(MAX_BUF)); 
-		printf("params: %s\n", params);
+		read(fpFIFO_tempos, params, MAX_BUF);
 		
 		//fecha os FIFOs
 		close(fpFIFO_nome); 
