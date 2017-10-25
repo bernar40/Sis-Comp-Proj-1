@@ -9,7 +9,7 @@
 #include <signal.h>
 #include <ctype.h>
 #include "fifo.h"
-#include "tratador.c"
+#include "tratador.h"
 
 /*
 como executar o programa
