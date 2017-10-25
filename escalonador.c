@@ -35,7 +35,8 @@ typedef struct Escalonador{
 }escalonador;
 
 void tratador_termino_filho(int signal);
-void recebe_processo(int tam, int *raj);
+void tratador_interpretador(int signal);
+void recebe_processo();
 void tratador_w4IO(int signal);
 void aumenta_prioridade();
 void diminui_prioridade();
@@ -66,6 +67,7 @@ int main(void){
 	
 	/////DECLARAÇÕES//////////////////
 	int my_pid = getpid();
+	signal(SIGCONT,tratador_interpretador);
 	signal(SIGUSR1,tratador_w4IO);
 	signal(SIGUSR2,tratador_termino_filho);
 	//////////////////////////////////	
@@ -227,6 +229,9 @@ void tratador_w4IO(int signal){
 
 void tratador_termino_filho(int signal){
 	escal->terminou = 1;
+}
+void tratador_interpretador(int signal){
+	recebe_processo();
 }
 
 void test(){
