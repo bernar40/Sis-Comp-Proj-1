@@ -17,7 +17,8 @@ exec <programa8exec81> (2, 10, 4)  // rajadas de 2, 10, 4 segundos, interrompida
 exec <programa8exec81> (20, 20, 2) // rajadas de 20, 20, e 2 segundos, interrompidas por I/O
 */
 
-int main (void){
+int main (int argc, char *argv[]){
+    int esc_pid = atoi(argv[1]);
     char input[100];
     char word[3][100]; //cada palavra do input vem para ca ------- word[0] = exec | word[1] = nome do programa | word[2] = (2, 10, 4) por exemplo
     char *str;
@@ -60,6 +61,7 @@ int main (void){
         close(fpFIFO_nome);
 
         printf("Processo enviado ao escalonador!\n");
+        kill(esc_pid, SIGCONT);
         printf("Digite seu novo processo:\n");
     }
     return 0;
