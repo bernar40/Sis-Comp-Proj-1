@@ -26,6 +26,7 @@ int main(int argc,char *argv[]){
 		//condição I/O
 		kill(getppid(),SIGUSR1);
 		sleep(3);
+		kill(getppid(),SIGCHLD);
 		raise(SIGSTOP);
 	}
 	//Acabou execução

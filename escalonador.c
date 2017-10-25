@@ -9,6 +9,9 @@
 #include <signal.h>
 #include "fila.h"
 #include "fifo.h"
+#define NIVEL1 1
+#define NIVEL2 2
+#define NIVEL3 3
 #define DELTA1 1
 #define DELTA2 2
 #define DELTA3 4
@@ -19,6 +22,7 @@
 /////////DEFINE PROCESSO//////////
 typedef struct Processo{
 	int my_pid;
+	int nivel_corrente;
 }processo;
 
 typedef struct priority_queue{
@@ -29,6 +33,7 @@ typedef struct priority_queue{
 typedef struct Escalonador{
 	nivel_prioridade *nivel_1, *nivel_2, *nivel_3;
 	processo *ativo;
+	Fila *processos_io;
 	int cpu_bound;
 	int terminou;
 	int cota;
@@ -38,8 +43,8 @@ void tratador_termino_filho(int signal);
 void tratador_interpretador(int signal);
 void recebe_processo();
 void tratador_w4IO(int signal);
-void aumenta_prioridade();
-void diminui_prioridade();
+void aumenta_prioridade(processo* proc);
+void diminui_prioridade(processo* proc);
 void test();
 escalonador *escal;
 int main(void){
@@ -47,6 +52,7 @@ int main(void){
 	Fila *fila_Prioridade_1 = fila_cria();
 	Fila *fila_Prioridade_2 = fila_cria();
 	Fila *fila_Prioridade_3 = fila_cria();
+	Fila *ios = fila_cria();
 	//////////////////////////////////
 
 	////////INICIA NIVEL_PRIORIDADE///
@@ -69,6 +75,7 @@ int main(void){
 	int my_pid = getpid();
 	signal(SIGCONT,tratador_interpretador);
 	signal(SIGUSR1,tratador_w4IO);
+	signal(SIGCHLD,tratador_fimIO);
 	signal(SIGUSR2,tratador_termino_filho);
 	//////////////////////////////////	
 	
@@ -77,6 +84,7 @@ int main(void){
 	escal->nivel_1 = fila_1;
 	escal->nivel_2 = fila_2;
 	escal->nivel_3 = fila_3;
+	escal->processos_io = ios;
 	escal->cota=0;
 	//////////////////////////////////	
 
@@ -112,10 +120,10 @@ int main(void){
 		else{
 			if(escal->cpu_bound){
 				kill(escal->ativo->my_pid,SIGSTOP);
-				diminui_prioridade(escal);
+				diminui_prioridade(escal->ativo);
 			}
 			else{
-				aumenta_prioridade(escal);
+				fila_insere(escal->processos_io,escal->ativo);
 			}
 		}
 		//////////////////////////////////
@@ -125,31 +133,37 @@ int main(void){
 }
 
 //////MODIFICA PRIORIDADE/////////
-void diminui_prioridade(escalonador *escal){
-	switch(escal->cota){
-		case DELTA1:
-			fila_insere((escal->nivel_2->fila_Prioridade),escal->ativo);
+void diminui_prioridade(processo *proc){
+	switch(proc->nivel_corrente){
+		case NIVEL1:
+			proc->nivel_corrente = NIVEL2;
+			fila_insere((escal->nivel_2->fila_Prioridade),proc);
 		break;
-		case DELTA2:
-			fila_insere((escal->nivel_3->fila_Prioridade),escal->ativo);
+		case NIVEL2:
+			proc->nivel_corrente = NIVEL3;
+			fila_insere((escal->nivel_3->fila_Prioridade),proc);
 		
 		break;
-		case DELTA3:
-			fila_insere((escal->nivel_3->fila_Prioridade),escal->ativo);
+		case NIVEL3:
+			proc->nivel_corrente = NIVEL3;
+			fila_insere((escal->nivel_3->fila_Prioridade),proc);
 		break;
 	}
 }
-void aumenta_prioridade(escalonador *escal){
-	switch(escal->cota){
-		case DELTA1:
-			fila_insere((escal->nivel_1->fila_Prioridade),escal->ativo);
+void aumenta_prioridade(processo *proc){
+	switch(proc->nivel_corrente){
+		case NIVEL1:
+			proc->nivel_corrente = NIVEL1;
+			fila_insere((escal->nivel_1->fila_Prioridade),proc);
 		break;
-		case DELTA2:
-			fila_insere((escal->nivel_1->fila_Prioridade),escal->ativo);
+		case NIVEL2:
+			proc->nivel_corrente = NIVEL1;
+			fila_insere((escal->nivel_1->fila_Prioridade),proc);
 		
 		break;
-		case DELTA3:
-			fila_insere((escal->nivel_2->fila_Prioridade),escal->ativo);
+		case NIVEL3:
+			proc->nivel_corrente = NIVEL2;
+			fila_insere((escal->nivel_2->fila_Prioridade),proc);
 		break;
 	}
 }
@@ -177,12 +191,15 @@ void recebe_processo(){
 	if((pid=fork())!=0){	//PAI
 		processo *new_processo = (processo*) malloc(sizeof(processo));
 		new_processo->my_pid = pid;
+		new_processo->nivel_corrente = NIVEL1;
 		fila_insere((escal->nivel_1->fila_Prioridade),new_processo);
 	}
 	else if(pid == 0){
 		my_pid = getpid();
 		signal(SIGUSR1,SIG_DFL);
 		signal(SIGUSR2,SIG_DFL);
+		signal(SIGCHLD,SIG_DFL);
+		signal(SIGCONT,SIG_DFL);
 		//LOOP do FILHO
 		/*fd = open(myfifo, O_RDONLY);
 		read(fd, buf, 1024);
@@ -225,6 +242,10 @@ void recebe_processo(){
 //indica que o filho terminou antes que o pai, ao mesmo tempo despertando-o do sono
 void tratador_w4IO(int signal){
 	escal->cpu_bound = 0;
+}
+void tratador_fimIO(int signal){
+	
+	aumenta_prioridade((processo*)(escal->processos_io));
 }
 
 void tratador_termino_filho(int signal){
