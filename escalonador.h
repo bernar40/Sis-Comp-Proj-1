@@ -1,1 +1,1 @@
-void recebe_processo(int tam, int *raj);
+void recebe_processo();

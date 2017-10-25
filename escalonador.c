@@ -1,7 +1,6 @@
 //Escalonador
 #include <sys/stat.h>
 #include <sys/wait.h>
-#include "escalonador.h"
 #include <unistd.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -43,9 +42,10 @@ void tratador_termino_filho(int signal);
 void tratador_interpretador(int signal);
 void recebe_processo();
 void tratador_w4IO(int signal);
+void tratador_fimIO(int signal);
 void aumenta_prioridade(processo* proc);
 void diminui_prioridade(processo* proc);
-void test();
+//void test();
 escalonador *escal;
 int main(void){
 	//////////////INICIA FILAS////////
@@ -104,7 +104,8 @@ int main(void){
 		}
 		else {
 			printf("\nFilas Vazias, aguardo %d\n",ESPERA);
-			test();
+			//test();
+			recebe_processo();
 			sleep(ESPERA);
 			continue;
 		}
@@ -196,6 +197,7 @@ void recebe_processo(){
 	}
 	else if(pid == 0){
 		my_pid = getpid();
+		char *argv[2];
 		signal(SIGUSR1,SIG_DFL);
 		signal(SIGUSR2,SIG_DFL);
 		signal(SIGCHLD,SIG_DFL);
@@ -223,13 +225,17 @@ void recebe_processo(){
 		
 		//read adaptado
 		read(fpFIFO_tempos, params, sizeof(MAX_BUF)); 
+		printf("params: %s\n", params);
 		
 		//fecha os FIFOs
 		close(fpFIFO_nome); 
 		close(fpFIFO_tam);
 		close(fpFIFO_tempos);
+
+		argv[0] = params;
+		argv[1] = NULL;
 	
-		execv(name,params,0);
+		execv(name, argv);
 		
 	}
 	
@@ -257,7 +263,7 @@ void tratador_interpretador(int signal){
 
 void test(){
 	int fpFIFO_nome, fpFIFO_tam, fpFIFO_tempos;
-	int tam;
+	int tam, i;
 	int *exect;
 	char name[MAX_BUF];
     fpFIFO_nome = abre_fifo_read(fpFIFO_nome, FIFO_nome); //abre FIFO
@@ -270,7 +276,7 @@ void test(){
 
 	fpFIFO_tempos = abre_fifo_read(fpFIFO_tempos, FIFO_tempos);
 	exect = (int *)malloc((tam*sizeof(int)));
-	for (int i=0; i<tam; i++){
+	for (i=0; i<tam; i++){
 		read(fpFIFO_tempos, &exect[1], sizeof(int)); //le cada indice do vetor exect no interpretador e os poe no vetor exect
 		printf("%d\n",exect[1]);
 	}
