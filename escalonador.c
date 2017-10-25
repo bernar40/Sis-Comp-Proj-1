@@ -73,6 +73,9 @@ int main(void){
 	
 	/////DECLARAÇÕES//////////////////
 	int my_pid = getpid();
+	remove(FIFO_nome); 
+    remove(FIFO_tam);
+    remove(FIFO_tempos);
 	printf("PID Escalonador: %d\n", my_pid);
 	signal(SIGCONT,tratador_interpretador);
 	signal(SIGUSR1,tratador_w4IO);
@@ -92,14 +95,17 @@ int main(void){
 	///LOOP ESCALONADOR///////////////
 	for(EVER){
 		if(!fila_vazia(escal->nivel_1->fila_Prioridade)){
+			printf("Olha o 1 aqui");
 			escal->ativo = (processo*)fila_retira(escal->nivel_1->fila_Prioridade);
 			escal->cota = escal->nivel_1->tempo_cota;
 		}
 		else if(!fila_vazia(escal->nivel_2->fila_Prioridade)){
+			printf("Olha o 2 aqui");
 			escal->ativo = (processo*)fila_retira(escal->nivel_2->fila_Prioridade);
 			escal->cota = escal->nivel_2->tempo_cota;
 		}
 		else if(!fila_vazia(escal->nivel_3->fila_Prioridade)){
+			printf("Olha o 3 aqui");
 			escal->ativo = (processo*)fila_retira(escal->nivel_3->fila_Prioridade);
 			escal->cota = escal->nivel_3->tempo_cota;
 		}
@@ -204,10 +210,6 @@ void recebe_processo(){
 		signal(SIGCHLD,SIG_DFL);
 		signal(SIGCONT,SIG_DFL);
 
-	    remove(FIFO_nome); 
-	    remove(FIFO_tam);
-	    remove(FIFO_tempos);
-
 	    cria_fifo(FIFO_nome);
 	    cria_fifo(FIFO_tam);
 	    cria_fifo(FIFO_tempos);
@@ -218,13 +220,13 @@ void recebe_processo(){
 		printf("Received: %s \n", buf);
 		close(fd);*/
 		
-	    fpFIFO_nome = abre_fifo_read(fpFIFO_nome, FIFO_nome); //abre FIFO
+	    fpFIFO_nome = abre_fifo_read(fpFIFO_nome, FIFO_nome); //abre FIFOO NOME %d\n", fpFIFO_nome);
 		read(fpFIFO_nome, name, MAX_BUF); //le o nome do programa e o poe no vetor name
-		printf("Nome do programa: %s\n", name);
+		
 
 		fpFIFO_tam = abre_fifo_read(fpFIFO_tam, FIFO_tam);
 		read(fpFIFO_tam, &tam, sizeof(int)); //le o tam do vetor exect no interpretador pra criar um igual aqui e o poe na var tam name
-		printf("Dado recebido (Tam): %d\n", tam);
+		
 
 		fpFIFO_tempos = abre_fifo_read(fpFIFO_tempos, FIFO_tempos);
 		exect = (int *)malloc((tam*sizeof(int)));
@@ -235,18 +237,27 @@ void recebe_processo(){
 		
 		//read adaptado
 		read(fpFIFO_tempos, params, MAX_BUF);
-		printf("Tempos: %s\n", params);
+		
 		
 		//fecha os FIFOs
-		close(fpFIFO_nome); 
-		close(fpFIFO_tam);
-		close(fpFIFO_tempos);
+		//close(fpFIFO_nome); 
+		//close(fpFIFO_tam);
+		//close(fpFIFO_tempos);
+		if (tam){
+			printf("Nome do programa: %s\n", name);
+			printf("Dado recebido (Tam): %d\n", tam);
+			printf("Tempos: %s\n", params);
+			printf("executando %s\n", name);
 
-		argv[0] = name;
-		argv[1] = params;
-		argv[2] = NULL;
+			argv[0] = name;
+			argv[1] = params;
+			argv[2] = NULL;
 
-		execv(name, argv);
+
+			execv(name, argv);
+
+		}
+
 		
 	}
 	

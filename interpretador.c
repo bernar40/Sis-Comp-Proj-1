@@ -36,9 +36,9 @@ int main (int argc, char *argv[]){
     cria_fifo(FIFO_tempos);
 
     printf("Digite seu processo:\n");
-    while (fgets(input, 100, stdin)) //repete sempre pegando input do teclado
+    while (1) //repete sempre pegando input do teclado
     {
-
+        fgets(input, 100, stdin);
         separador_input(input, word, 2);
         exect = separador_tempo(word[2], &tam);
 

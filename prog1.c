@@ -32,5 +32,6 @@ int main(int argc,char *argv[]){
 	}
 	//Acabou execução
 	kill(getppid(),SIGUSR2);
-	return 0;
+	printf("Fim de programa 1\n");
+	exit(0);
 }
