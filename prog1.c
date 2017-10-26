@@ -16,12 +16,12 @@ int main(int argc,char *argv[]){
 	int my_pid = getpid();
 
 	raj = separador_tempo(params, &tam);
-
+	
 	raise(SIGSTOP);
 	for(i=0;i<tam;i++){
-		printf("%d\n", raj[i]);
+		printf("\nDe %d: rajada %d", getpid(),raj[i]);
 		for(j=0;j<raj[i];j++){
-			printf("%d\n",my_pid);	//Output espacíficado pelo enunciado
+			printf("\n%d",my_pid);	//Output espacíficado pelo enunciado
 			sleep(1);
 		}
 		//condição I/O
@@ -34,7 +34,7 @@ int main(int argc,char *argv[]){
 		raise(SIGSTOP);
 	}
 	//Acabou execução
+	printf("\nCriança %d avisa que morreu",proc->my_pid);
 	kill(getppid(),SIGUSR2);
-	printf("Fim de programa 1\n");
 	exit(0);
 }
