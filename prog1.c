@@ -26,8 +26,11 @@ int main(int argc,char *argv[]){
 		}
 		//condição I/O
 		kill(getppid(),SIGUSR1);
+		printf("\nCriança %d dormiu",getpid());
 		sleep(3);
+		printf("\nCriança %d acordou",getpid());
 		kill(getppid(),SIGCHLD);
+		printf("\nCriança %d avisou que acordou",getpid());
 		raise(SIGSTOP);
 	}
 	//Acabou execução

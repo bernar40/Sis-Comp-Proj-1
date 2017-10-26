@@ -273,7 +273,7 @@ void tratador_w4IO(int signal){
 }
 void tratador_fimIO(int signal){
 	
-	aumenta_prioridade((processo*)(escal->processos_io));
+	aumenta_prioridade((processo*)(fila_retira(escal->processos_io)));
 }
 
 void tratador_termino_filho(int signal){
