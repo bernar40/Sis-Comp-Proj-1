@@ -4,11 +4,20 @@
 #include <signal.h>
 #include <unistd.h>
 #include "tratador.h"
-#define CHAR sizeof(char)
-int decodifica_params(int **vet,char *params);
 
-//void tratador_customSTOP(int signal);
-//void tratador_customCONT(int signal);
+int main (int argc, char *argv[]){
+	int tam, *exec_time = separador_tempo(argv[1], &tam);
+	int i, j;
+	for (i=0; i<tam; i++){
+		printf("PID: %d ---- Exec time: %d\n", getpid(), exec_time[i]);
+		for (j=0; j<exec_time[i]; j++){
+			printf("%d\n", getpid());
+			//sleep(1);
+		}
+	}
+	return 0;
+}
+/*
 
 int main(int argc,char *argv[]){
 	char *params = argv[1];
@@ -37,3 +46,4 @@ int main(int argc,char *argv[]){
 	kill(getppid(),SIGUSR2);
 	return 0;
 }
+*/
