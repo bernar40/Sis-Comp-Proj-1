@@ -8,13 +8,14 @@
 int decodifica_params(int **vet,char *params);
 
 
-
+int parado;
 int main(int argc,char *argv[]){
 	char *params = argv[1];
 	int *raj, tam;
 	int i, j;
 	int my_pid = getpid();
-
+	signal(SIGUSR1,tratador_customSTOP);
+	signal(SIGUSR2,tratador_customCONT);
 	raj = separador_tempo(params, &tam);
 	
 	raise(SIGSTOP);
@@ -23,6 +24,7 @@ int main(int argc,char *argv[]){
 		for(j=0;j<raj[i];j++){
 			printf("\n%d",my_pid);	//Output espacíficado pelo enunciado
 			sleep(1);
+			while(parado);
 		}
 		//condição I/O
 		kill(getppid(),SIGUSR1);
@@ -37,4 +39,12 @@ int main(int argc,char *argv[]){
 	printf("\nCriança %d avisa que morreu",proc->my_pid);
 	kill(getppid(),SIGUSR2);
 	exit(0);
+}
+void tratador_customSTOP(int signal){
+	printf("\nPediu pra %d parar",proc->my_pid);
+	parado = 1;
+}
+void tratador_customCONT(int signal){
+	printf("\nPediu pra %d continuar",proc->my_pid);
+	parado = 0;
 }

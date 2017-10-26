@@ -120,6 +120,7 @@ int main(void){
 		escal->cpu_bound = 1;
 		escal->terminou = 0;
 		kill(escal->ativo->my_pid,SIGCONT);
+		kill(escal->ativo->my_pid,SIGUSR2);
 		sleep(escal->cota);
 		if(escal->terminou){
 			printf("\n#######################\nProcesso: %d terminou\n#######################",escal->ativo->my_pid);
@@ -129,6 +130,7 @@ int main(void){
 			if(escal->cpu_bound){
 				printf("\nProcesso %d foi cpu_bound\n\t(escalonador interrompeu ele)",escal->ativo->my_pid);
 				kill(escal->ativo->my_pid,SIGSTOP);
+				kill(escal->ativo->my_pid,SIGUSR1);
 				diminui_prioridade(escal->ativo);
 			}
 			else{
