@@ -36,15 +36,15 @@ int main(int argc,char *argv[]){
 		raise(SIGSTOP);
 	}
 	//Acabou execução
-	printf("\nCriança %d avisa que morreu",getpid());
+	printf("\nCriança %d avisa que morreu",proc->my_pid);
 	kill(getppid(),SIGUSR2);
 	exit(0);
 }
 void tratador_customSTOP(int signal){
-	printf("\nPediu pra %d parar",getpid());
+	printf("\nPediu pra %d parar",proc->my_pid);
 	parado = 1;
 }
 void tratador_customCONT(int signal){
-	printf("\nPediu pra %d continuar",getpid());
+	printf("\nPediu pra %d continuar",proc->my_pid);
 	parado = 0;
 }
