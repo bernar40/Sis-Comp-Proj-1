@@ -7,7 +7,8 @@
 #define CHAR sizeof(char)
 int decodifica_params(int **vet,char *params);
 
-
+void tratador_customSTOP(int signal);
+void tratador_customCONT(int signal);
 int parado;
 int main(int argc,char *argv[]){
 	char *params = argv[1];
@@ -36,15 +37,15 @@ int main(int argc,char *argv[]){
 		raise(SIGSTOP);
 	}
 	//Acabou execução
-	printf("\nCriança %d avisa que morreu",proc->my_pid);
+	printf("\nCriança %d avisa que morreu",getpid());
 	kill(getppid(),SIGUSR2);
 	exit(0);
 }
 void tratador_customSTOP(int signal){
-	printf("\nPediu pra %d parar",proc->my_pid);
+	printf("\nPediu pra %d parar",getpid());
 	parado = 1;
 }
 void tratador_customCONT(int signal){
-	printf("\nPediu pra %d continuar",proc->my_pid);
+	printf("\nPediu pra %d continuar",getpid());
 	parado = 0;
 }
