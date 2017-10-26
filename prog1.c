@@ -7,7 +7,8 @@
 #define CHAR sizeof(char)
 int decodifica_params(int **vet,char *params);
 
-
+void tratador_customSTOP(int signal);
+void tratador_customCONT(int signal);
 int parado;
 int main(int argc,char *argv[]){
 	char *params = argv[1];
