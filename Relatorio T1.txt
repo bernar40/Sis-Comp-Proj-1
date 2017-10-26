@@ -1,9 +1,3 @@
-relatório indicando que programas serão executados 
-em  seu  teste,  a  ordem  de entrada  para  o escalonador e  a  ordem  de execução determinada 
-pelo escalonador, juntamente com uma análise crítica dos alunos sobre o que, de fato, ocorreu
-(se a execução foi a prevista ou não). Essa explicação também será objeto de avaliação.
-
-
 ##################################################
 RELATÓRIO por BERNARDO COSTA RUGA 1511651 e RODRIGO LEITE DA SILVA 1413150
 ##################################################
@@ -63,44 +57,140 @@ Testes Interpretador:
 
 Testes Escalonador:
     Entrada:
-        exec prog1 (2, 3, 4)
+        exec prog1 (5, 4, 2)
     Saida:
         Filas Vazias, aguardo 10
         Nome do programa: prog1
         Dado recebido (Tam): 3
-        Tempos: (2, 3, 4)
+        Tempos: (5, 4, 2)
         executando prog1
-        2
-        11004
-        11004
+
+        De 12288: rajada 5
+
+        Filas Vazias, aguardo 10
+        12288
+        12288
+        12288
+        12288
+        12288
+        De 12288: rajada 4
+        12288
+        12288
+        12288
+        12288
+        De 12288: rajada 2
+        12288
+
         Filas Vazias, aguardo 10
 
+        #######################
+        Processo: 12301 terminou
+        #######################
+        Filas Vazias, aguardo 10
+        12288
+
     Entrada:
-        exec prog1 (10, 20, 30, 40)
+        exec prog1 (1, 3, 6, 3)
     Saida:
         Filas Vazias, aguardo 10
         Nome do programa: prog1
         Dado recebido (Tam): 4
-        Tempos: (10, 20, 30, 40)
+        Tempos: (1, 3, 6, 3)
         executando prog1
-        10
-        11010
-        11010
-        11010
-        11010
-        11010
-        11010
-        ...
+
+        De 12355: rajada 1
+        12355
+        De 12355: rajada 3
+        12355
+        12355
+
         Filas Vazias, aguardo 10
-        
+        12355
+        De 12355: rajada 6
+        12355
+        12355
+        12355
+        12355
+        12355
+
+        Filas Vazias, aguardo 10
+        12355
+        De 12355: rajada 3
+        12355
+        12355
+
+        Filas Vazias, aguardo 10
+        12355
+
     Entrada:
         exec prog1 (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
     Saida:
-        Nome do programa: prog1
-        Dado recebido (Tam): 10
-        Tempos: (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
-        executando prog1
-        1
-        11093
         Filas Vazias, aguardo 10
+        12355Nome do programa: prog1
+        Dado recebido (Tam): 9
+        Tempos: (1, 2, 3, 4, 5, 4, 3, 2, 1)
+        executando prog1
 
+        De 12378: rajada 1
+        12378
+        De 12378: rajada 2
+        12378
+
+        Filas Vazias, aguardo 10
+        12378
+        De 12378: rajada 3
+        12378
+        12378
+
+        Filas Vazias, aguardo 10
+        12378
+        De 12378: rajada 4
+        12378
+        12378
+        12378
+
+        Filas Vazias, aguardo 10
+        12378
+        De 12378: rajada 5
+        12378
+        12378
+        12378
+        12378
+
+        Filas Vazias, aguardo 10
+        12378
+        De 12378: rajada 4
+        12378
+        12378
+        12378
+
+        Filas Vazias, aguardo 10
+        12378
+        De 12378: rajada 3
+        12378
+        12378
+
+        Filas Vazias, aguardo 10
+        12378
+        De 12378: rajada 2
+        12378
+
+        Filas Vazias, aguardo 10
+        12378
+        De 12378: rajada 1
+
+        Filas Vazias, aguardo 10
+        12378
+
+Ordem de execução:
+O nosso escalonador funciona da seguinte maneira. Ele se divide em 3 filas, uma de acordo com o tempo de execução, uma para t=1s, t=2s, t=4s.
+O escalonador vai trabalhar da seguinte maneira, ele vai dar prioriadade a que tem menos tempo de execução, logo ele começa com a fila 1.
+Ao executar todos da fila 1 ele passaria para a fila 2 e então a executaria até acabar o tempo. Após isso, voltaria a checar a fila 1 para ver se não tem mais alguem,
+e se não tivesse, ele então volta a processar a fila 2. Após terminar a 2 ele faria isso com a 3, mas agora checando a 2 e a 1.
+Basicamente, cada vez que for escolher um programa para dar a vez, ele começa a procurar na fila de maior preferência. Se esta estive vazia, o escalonador busca na próxima fila
+Então assim repetindo o processo.
+
+Analise:
+Em teoria tudo que deveria acontecer era de acordo com a ordem de execução acima. Porém, não foi bem assim. o problema mais critico, encontrado na data de entrega, foi que, um SIGSTOP
+enviado para um processo que está em sleep(), é ignorado. Com isso a estrutura do escalonador desmorona. Assim sendo, nao conseguimos de fator fazer o escalonador funcionar de maneira
+perfeita. Ele aparenta estar fazendo certo escalonamento, mas não da maneira que esperavamos. 
