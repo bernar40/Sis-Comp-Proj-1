@@ -1,0 +1,106 @@
+relatório indicando que programas serão executados 
+em  seu  teste,  a  ordem  de entrada  para  o escalonador e  a  ordem  de execução determinada 
+pelo escalonador, juntamente com uma análise crítica dos alunos sobre o que, de fato, ocorreu
+(se a execução foi a prevista ou não). Essa explicação também será objeto de avaliação.
+
+
+##################################################
+RELATÓRIO por BERNARDO COSTA RUGA 1511651 e RODRIGO LEITE DA SILVA 1413150
+##################################################
+
+Primeiro Trabalho de Sistemas de Computação – INF 1019
+
+Arquivos: interpretador.c
+		  escalonador.c
+          escalonador.h
+		  fila.c
+		  fila.h
+          fifo.c
+          fifo.h
+          tratador.c
+          tratador.h
+		  prog1.c
+		  entrada.txt
+		  saida.txt
+
+
+Compilação:	gcc prog1.c tratador.c -o prog1
+
+			gcc interpretador.c fifo.c tratador.c -o interpretador
+
+			gcc escalonador.c fifo.c escalonador.c fila.c -o escalonador
+
+Execução:	./escalonador
+            ./interpretador <pid_escalonador>
+
+Formato da entrada:	exec <nomedoprograma> (t1, t2, t3, ...)
+
+Testes Interpretador:
+    Entrada:
+        exec prog1 (2, 3, 4)
+    Saida:
+        Nome: 6 dados enviados ao escalonador
+        Tam: 4 dados enviados ao escalonador
+        Tempo: 10 dados enviados ao escalonador
+        Processo enviado ao escalonador!
+
+    Entrada:
+        exec prog1 (10, 20, 30, 40)
+    Saida:
+        Nome: 6 dados enviados ao escalonador
+        Tam: 4 dados enviados ao escalonador
+        Tempo: 17 dados enviados ao escalonador
+        Processo enviado ao escalonador!
+    Entrada:
+        exec prog1 (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    Saida:
+        Nome: 6 dados enviados ao escalonador
+        Tam: 4 dados enviados ao escalonador
+        Tempo: 32 dados enviados ao escalonador
+        Processo enviado ao escalonador!
+
+
+
+Testes Escalonador:
+    Entrada:
+        exec prog1 (2, 3, 4)
+    Saida:
+        Filas Vazias, aguardo 10
+        Nome do programa: prog1
+        Dado recebido (Tam): 3
+        Tempos: (2, 3, 4)
+        executando prog1
+        2
+        11004
+        11004
+        Filas Vazias, aguardo 10
+
+    Entrada:
+        exec prog1 (10, 20, 30, 40)
+    Saida:
+        Filas Vazias, aguardo 10
+        Nome do programa: prog1
+        Dado recebido (Tam): 4
+        Tempos: (10, 20, 30, 40)
+        executando prog1
+        10
+        11010
+        11010
+        11010
+        11010
+        11010
+        11010
+        ...
+        Filas Vazias, aguardo 10
+        
+    Entrada:
+        exec prog1 (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+    Saida:
+        Nome do programa: prog1
+        Dado recebido (Tam): 10
+        Tempos: (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+        executando prog1
+        1
+        11093
+        Filas Vazias, aguardo 10
+
