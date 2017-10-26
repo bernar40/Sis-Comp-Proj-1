@@ -26,6 +26,7 @@ int main (int argc, char *argv[]){
     int tam, i, last;
     int fpFIFO_nome, fpFIFO_tam, fpFIFO_tempos;
     int size1, size2;
+    int nDados, tDados, tpDados;
     //remove os arquivos FIFOS para nao dar erro na criacao
     remove(FIFO_nome); 
     remove(FIFO_tam);
@@ -46,11 +47,11 @@ int main (int argc, char *argv[]){
 
         fpFIFO_nome = abre_fifo_write(fpFIFO_nome, FIFO_nome);
         size1 = strlen(word[1]) + 1;
-        write(fpFIFO_nome, word[1], size1);
+        nDados = write(fpFIFO_nome, word[1], size1);
 
         fpFIFO_tam = abre_fifo_write(fpFIFO_tam, FIFO_tam);
         //printf("%d\n", tam);
-        write(fpFIFO_tam, &tam, sizeof(int));
+        tDados = write(fpFIFO_tam, &tam, sizeof(int));
 
         
         fpFIFO_tempos = abre_fifo_write(fpFIFO_tempos, FIFO_tempos);
@@ -62,8 +63,11 @@ int main (int argc, char *argv[]){
         word[2][last+1] = '\0';
         size2 = strlen(word[2]) + 1;
         //printf("word[2] = %s -- size2 = %d\n", word[2], size2);
-        write(fpFIFO_tempos, word[2], size2);
+        tpDados = write(fpFIFO_tempos, word[2], size2);
 
+        printf("Nome: %d dados enviados ao escalonador\n", nDados);
+        printf("Tam: %d dados enviados ao escalonador\n", tDados);
+        printf("Tempo: %d dados enviados ao escalonador\n", tpDados);
         
         close(fpFIFO_tam);
         close(fpFIFO_tempos);

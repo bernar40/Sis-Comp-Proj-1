@@ -18,6 +18,7 @@
 #define EVER ;;
 
 
+
 /////////DEFINE PROCESSO//////////
 typedef struct Processo{
 	int my_pid;
@@ -95,17 +96,15 @@ int main(void){
 	///LOOP ESCALONADOR///////////////
 	for(EVER){
 		if(!fila_vazia(escal->nivel_1->fila_Prioridade)){
-			printf("\nOlha o 1 aqui");
 			escal->ativo = (processo*)fila_retira(escal->nivel_1->fila_Prioridade);
 			escal->cota = escal->nivel_1->tempo_cota;
 		}
 		else if(!fila_vazia(escal->nivel_2->fila_Prioridade)){
-			printf("\nOlha o 2 aqui");
+
 			escal->ativo = (processo*)fila_retira(escal->nivel_2->fila_Prioridade);
 			escal->cota = escal->nivel_2->tempo_cota;
 		}
 		else if(!fila_vazia(escal->nivel_3->fila_Prioridade)){
-			printf("\nOlha o 3 aqui");
 			escal->ativo = (processo*)fila_retira(escal->nivel_3->fila_Prioridade);
 			escal->cota = escal->nivel_3->tempo_cota;
 		}
@@ -128,13 +127,13 @@ int main(void){
 		}
 		else{
 			if(escal->cpu_bound){
-				printf("\nProcesso %d foi cpu_bound\n\t(escalonador interrompeu ele)",escal->ativo->my_pid);
+				//printf("\nProcesso %d foi cpu_bound\n\t(escalonador interrompeu ele)",escal->ativo->my_pid);
 				kill(escal->ativo->my_pid,SIGSTOP);
 				kill(escal->ativo->my_pid,SIGUSR1);
 				diminui_prioridade(escal->ativo);
 			}
 			else{
-				printf("\nProcesso %d foi io_bound\n\t(escalonador foi acordado por ele)",escal->ativo->my_pid);
+				//printf("\nProcesso %d foi io_bound\n\t(escalonador foi acordado por ele)",escal->ativo->my_pid);
 				fila_insere(escal->processos_io,escal->ativo);
 			}
 		}
@@ -146,7 +145,7 @@ int main(void){
 
 //////MODIFICA PRIORIDADE/////////
 void diminui_prioridade(processo *proc){
-	printf("\nPrioridade de %d diminuiu",proc->my_pid);
+	//printf("\nPrioridade de %d diminuiu",proc->my_pid);
 	switch(proc->nivel_corrente){
 		case NIVEL1:
 			proc->nivel_corrente = NIVEL2;
@@ -164,7 +163,7 @@ void diminui_prioridade(processo *proc){
 	}
 }
 void aumenta_prioridade(processo *proc){
-	printf("\nPrioridade de %d aumentou",proc->my_pid);
+	//printf("\nPrioridade de %d aumentou",proc->my_pid);
 	switch(proc->nivel_corrente){
 		case NIVEL1:
 			proc->nivel_corrente = NIVEL1;
@@ -275,20 +274,17 @@ void recebe_processo(){
 //trata o filho estar "waiting for I/O"
 //indica que o filho terminou antes que o pai, ao mesmo tempo despertando-o do sono
 void tratador_w4IO(int signal){
-	printf("\nEscalonador acordou por pedido de IO");
 	escal->cpu_bound = 0;
 }
 void tratador_fimIO(int signal){
-	printf("\nEscalonador retirou da fila de IO");
-	aumenta_prioridade((processo*)(fila_retira(escal->processos_io)));
+	
+	aumenta_prioridade((processo*)(escal->processos_io));
 }
 
 void tratador_termino_filho(int signal){
-	printf("\nEscalonador é notificado de morte");
 	escal->terminou = 1;
 }
 void tratador_interpretador(int signal){
-	printf("\nEscalonador é notificado de recebimento de processo");
 	recebe_processo();
 }
 
