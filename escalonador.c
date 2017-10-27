@@ -119,22 +119,22 @@ int main(void){
 		escal->terminou = 0;
 		//printf("Enviando SIGCONT para PID: %d\n", escal->ativo->my_pid);
 		kill(escal->ativo->my_pid,SIGCONT);
-		kill(escal->ativo->my_pid,SIGUSR2);
+		//kill(escal->ativo->my_pid,SIGUSR2);
 		sleep(escal->cota);
 		if(escal->terminou){
 			printf("\n#######################\nProcesso: %d terminou\n#######################",escal->ativo->my_pid);
 			free(escal->ativo);
 		}
 		else{
-			if(escal->cpu_bound){
-				//printf("\nProcesso %d foi cpu_bound\n\t(escalonador interrompeu ele)",escal->ativo->my_pid);
-				kill(escal->ativo->my_pid,SIGSTOP);
-				kill(escal->ativo->my_pid,SIGUSR1);
-				diminui_prioridade(escal->ativo);
+			if(!escal->cpu_bound){
+				printf("\nProcesso %d foi io_bound\t(escalonador foi acordado por ele)",escal->ativo->my_pid);
+				fila_insere(escal->processos_io,escal->ativo);
 			}
 			else{
-				//printf("\nProcesso %d foi io_bound\n\t(escalonador foi acordado por ele)",escal->ativo->my_pid);
-				fila_insere(escal->processos_io,escal->ativo);
+				printf("\nProcesso %d foi cpu_bound\t(escalonador interrompeu ele)",escal->ativo->my_pid);
+				kill(escal->ativo->my_pid,SIGSTOP);
+				//kill(escal->ativo->my_pid,SIGUSR1);
+				diminui_prioridade(escal->ativo);
 			}
 		}
 		//////////////////////////////////
@@ -201,7 +201,7 @@ void recebe_processo(){
 
 	if((pid=fork())!=0){	//PAI
 		//printf("to no pai");
-		printf("Parent PID: %d\n", getpid());
+		printf("\nParent PID: %d", getpid());
 		processo *new_processo = (processo*) malloc(sizeof(processo));
 		new_processo->my_pid = pid;
 		new_processo->nivel_corrente = NIVEL1;
@@ -233,7 +233,7 @@ void recebe_processo(){
 		strcpy(n, p_nome);
 	    strcpy(t, p_tempos);
 
-	    printf("Nome: %s ----- tempos: %s\n", n, t);
+	    printf("\nNome: %s ----- tempos: %s", n, t);
 
 	    shmdt(p_nome);
 	    shmdt(p_tempos);
@@ -259,21 +259,21 @@ void test(){
     seg_tp = shmget(3200, 100*sizeof(char), IPC_CREAT | S_IRUSR | S_IWUSR);
 
     if (seg_nome < 0 || seg_tp < 0){
-        puts("erro no shmget");
+        puts("\nerro no shmget");
         exit(-1);
     }
     p_nome = (char *) shmat(seg_nome, 0, 0);
     p_tempos = (char *)shmat(seg_tp, 0 ,0);
 
     if (p_nome == NULL || p_tempos == NULL){
-        puts("erro no shmat");
+        puts("\nerro no shmat");
         exit(-2);
     }
 
 	strcpy(n, p_nome);
     strcpy(t, p_tempos);
 
-    printf("Nome: %s ----- tempos: %s\n", n, t);
+    printf("\nNome: %s ----- tempos: %s", n, t);
 
     shmdt(p_nome);
     shmdt(p_tempos);
