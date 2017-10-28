@@ -97,18 +97,21 @@ int main(void){
 		if(!fila_vazia(escal->nivel_1->fila_Prioridade)){
 			escal->ativo = (processo*)fila_retira(escal->nivel_1->fila_Prioridade);
 			escal->cota = escal->nivel_1->tempo_cota;
+			printf("\nPego processo de prioridade NIVEL1");
 		}
 		else if(!fila_vazia(escal->nivel_2->fila_Prioridade)){
 
 			escal->ativo = (processo*)fila_retira(escal->nivel_2->fila_Prioridade);
 			escal->cota = escal->nivel_2->tempo_cota;
+			printf("\nPego processo de prioridade NIVEL2");
 		}
 		else if(!fila_vazia(escal->nivel_3->fila_Prioridade)){
 			escal->ativo = (processo*)fila_retira(escal->nivel_3->fila_Prioridade);
 			escal->cota = escal->nivel_3->tempo_cota;
+			printf("\nPego processo de prioridade NIVEL3");
 		}
 		else {
-			printf("\nFilas Vazias, aguardo %d\n",ESPERA);
+			printf("\nFilas Vazias, aguardo %d",ESPERA);
 			//test();
 			//recebe_processo();
 			sleep(ESPERA);
@@ -126,15 +129,15 @@ int main(void){
 			free(escal->ativo);
 		}
 		else{
-			if(!escal->cpu_bound){
-				printf("\nProcesso %d foi io_bound\t(escalonador foi acordado por ele)",escal->ativo->my_pid);
-				fila_insere(escal->processos_io,escal->ativo);
-			}
-			else{
-				printf("\nProcesso %d foi cpu_bound\t(escalonador interrompeu ele)",escal->ativo->my_pid);
+			if(escal->cpu_bound){
+				printf("\nProcesso %d foi cpu_bound",escal->ativo->my_pid);
 				kill(escal->ativo->my_pid,SIGSTOP);
 				//kill(escal->ativo->my_pid,SIGUSR1);
 				diminui_prioridade(escal->ativo);
+			}
+			else{
+				printf("\nProcesso %d foi io_bound",escal->ativo->my_pid);
+				fila_insere(escal->processos_io,escal->ativo);
 			}
 		}
 		//////////////////////////////////
@@ -145,7 +148,7 @@ int main(void){
 
 //////MODIFICA PRIORIDADE/////////
 void diminui_prioridade(processo *proc){
-	//printf("\nPrioridade de %d diminuiu",proc->my_pid);
+	printf("\nPrioridade de %d diminuiu",proc->my_pid);
 	switch(proc->nivel_corrente){
 		case NIVEL1:
 			proc->nivel_corrente = NIVEL2;
@@ -163,7 +166,7 @@ void diminui_prioridade(processo *proc){
 	}
 }
 void aumenta_prioridade(processo *proc){
-	//printf("\nPrioridade de %d aumentou",proc->my_pid);
+	printf("\nPrioridade de %d aumentou",proc->my_pid);
 	switch(proc->nivel_corrente){
 		case NIVEL1:
 			proc->nivel_corrente = NIVEL1;
@@ -289,11 +292,12 @@ void test(){
 //trata o filho estar "waiting for I/O"
 //indica que o filho terminou antes que o pai, ao mesmo tempo despertando-o do sono
 void tratador_w4IO(int signal){
+	printf("\nrecebido sinal W4IO");
 	escal->cpu_bound = 0;
 }
 void tratador_fimIO(int signal){
-	
-	aumenta_prioridade((processo*)(escal->processos_io));
+	printf("\nrecebido sinal fim IO");
+	aumenta_prioridade((processo*)fila_retira(escal->processos_io));
 }
 
 void tratador_termino_filho(int signal){

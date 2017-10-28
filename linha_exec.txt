@@ -1,1 +1,3 @@
 exec prog2 (2, 3, 4)
+
+exec prog2 (10)
