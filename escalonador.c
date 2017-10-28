@@ -221,7 +221,7 @@ void recebe_processo(){
 		signal(SIGUSR2,SIG_DFL);
 		signal(SIGCHLD,SIG_DFL);
 		signal(SIGCONT,SIG_DFL);
-		printf("PID do filho: %d\n", my_pid);
+		printf("\nPID do filho: %d", my_pid);
 	    seg_nome = shmget(3000, 100*sizeof(char), IPC_CREAT | S_IRUSR | S_IWUSR);
 	    seg_tp = shmget(3200, 100*sizeof(char), IPC_CREAT | S_IRUSR | S_IWUSR);
 
@@ -300,7 +300,7 @@ void tratador_w4IO(int signal){
 	escal->cpu_bound = 0;
 }
 void tratador_fimIO(int signal){
-	printf("\nrecebido sinal fim IO");
+	printf("\nrecebido sinal fim IO\n");
 	aumenta_prioridade((processo*)fila_retira(escal->processos_io));
 }
 

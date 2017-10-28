@@ -9,11 +9,9 @@ Arquivos: interpretador.c
           escalonador.h
 		  fila.c
 		  fila.h
-          fifo.c
-          fifo.h
           tratador.c
           tratador.h
-		  prog1.c
+		  prog2.c
 		  entrada.txt
 		  saida.txt
 
@@ -26,171 +24,755 @@ Compilação:	gcc prog1.c tratador.c -o prog1
 
 Execução:	./escalonador
             ./interpretador <pid_escalonador>
+                            Obs: O pid do escalonador é printado quando ele é executado.
 
 Formato da entrada:	exec <nomedoprograma> (t1, t2, t3, ...)
 
 Testes Interpretador:
     Entrada:
-        exec prog1 (2, 3, 4)
+        exec prog2 (3, 4, 5)
     Saida:
-        Nome: 6 dados enviados ao escalonador
-        Tam: 4 dados enviados ao escalonador
-        Tempo: 10 dados enviados ao escalonador
+        Nome: prog2 ----- tempos: (3, 4, 5)
         Processo enviado ao escalonador!
+        Digite seu novo processo:
 
     Entrada:
-        exec prog1 (10, 20, 30, 40)
+        exec prog2 (1, 3, 6, 3, 4)
     Saida:
-        Nome: 6 dados enviados ao escalonador
-        Tam: 4 dados enviados ao escalonador
-        Tempo: 17 dados enviados ao escalonador
+        Nome: prog2 ----- tempos: (1, 3, 6, 3, 4)
         Processo enviado ao escalonador!
+        Digite seu novo processo:
+
     Entrada:
-        exec prog1 (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+        exec prog2 (2, 3, 4)
+        exec prog2 (1, 2, 4)
     Saida:
-        Nome: 6 dados enviados ao escalonador
-        Tam: 4 dados enviados ao escalonador
-        Tempo: 32 dados enviados ao escalonador
+        Nome: prog2 ----- tempos: (2, 3, 4)
         Processo enviado ao escalonador!
+        Digite seu novo processo:
+        <entrada>
+        Nome: prog2 ----- tempos: (1, 2, 4)
+        Processo enviado ao escalonador!
+        Digite seu novo processo:
+
+    Entrada:
+        exec prog2 (1, 2, 3)   
+        exec prog2 (1, 2, 1)
+        exec prog2 (1, 1, 1)
+    Saida:
+        Nome: prog2 ----- tempos: (1, 2, 3)
+        Processo enviado ao escalonador!
+        Digite seu novo processo:
+        <entrada>
+        Nome: prog2 ----- tempos: (1, 2, 1)
+        Processo enviado ao escalonador!
+        Digite seu novo processo:
+        <entrada>
+        Nome: prog2 ----- tempos: (1, 1, 1)
+        Processo enviado ao escalonador!
+
 
 
 
 Testes Escalonador:
     Entrada:
-        exec prog1 (5, 4, 2)
+        exec prog1 (3, 4, 5)
     Saida:
+        Exec_time = (3, 4, 5)
+        2970
+        Pego processo de prioridade NIVEL1
+        Processo 2970 foi cpu_bound
+        Prioridade de 2970 diminuiu
+        2970
+        2970
+        Pego processo de prioridade NIVEL2
+        Processo 2970 foi cpu_bound
+        Prioridade de 2970 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal W4IO
+        Processo 2970 foi io_bound
         Filas Vazias, aguardo 10
-        Nome do programa: prog1
-        Dado recebido (Tam): 3
-        Tempos: (5, 4, 2)
-        executando prog1
+        recebido sinal fim IO
 
-        De 12288: rajada 5
-
+        Prioridade de 2970 aumentou
+        2970
+        2970
+        Pego processo de prioridade NIVEL2
+        Processo 2970 foi cpu_bound
+        Prioridade de 2970 diminuiu
+        2970
+        2970
+        Pego processo de prioridade NIVEL3
+        recebido sinal W4IO
+        Processo 2970 foi io_bound
         Filas Vazias, aguardo 10
-        12288
-        12288
-        12288
-        12288
-        12288
-        De 12288: rajada 4
-        12288
-        12288
-        12288
-        12288
-        De 12288: rajada 2
-        12288
+        recebido sinal fim IO
 
-        Filas Vazias, aguardo 10
+        Prioridade de 2970 aumentou
+        2970
+        2970
+        Pego processo de prioridade NIVEL2
+        Processo 2970 foi cpu_bound
+        Prioridade de 2970 diminuiu
+        2970
+        2970
+        2970
 
+        Pego processo de prioridade NIVEL3
         #######################
-        Processo: 12301 terminou
+        Processo: 2970 terminou
         #######################
-        Filas Vazias, aguardo 10
-        12288
+        Eu, 2970, Morri
 
     Entrada:
-        exec prog1 (1, 3, 6, 3)
+        exec prog2 (1, 3, 6, 3, 4)
     Saida:
+        Exec_time = (1, 3, 6)3068
+        Pego processo de prioridade NIVEL1
+        Processo 3068 foi cpu_bound
+        Prioridade de 3068 diminuiu
+        Pego processo de prioridade NIVEL2
+        recebido sinal W4IO
+        Processo 3068 foi io_bound
         Filas Vazias, aguardo 10
-        Nome do programa: prog1
-        Dado recebido (Tam): 4
-        Tempos: (1, 3, 6, 3)
-        executando prog1
+        recebido sinal fim IO
 
-        De 12355: rajada 1
-        12355
-        De 12355: rajada 3
-        12355
-        12355
-
+        Prioridade de 3068 aumentou
+        3068
+        Pego processo de prioridade NIVEL1
+        Processo 3068 foi cpu_bound
+        Prioridade de 3068 diminuiu
+        3068
+        3068
+        Pego processo de prioridade NIVEL2
+        Processo 3068 foi cpu_bound
+        Prioridade de 3068 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal W4IO
+        Processo 3068 foi io_bound
         Filas Vazias, aguardo 10
-        12355
-        De 12355: rajada 6
-        12355
-        12355
-        12355
-        12355
-        12355
+        recebido sinal fim IO
 
+        Prioridade de 3068 aumentou
+        3068
+        3068
+        Pego processo de prioridade NIVEL2
+        Processo 3068 foi cpu_bound
+        Prioridade de 3068 diminuiu
+        3068
+        3068
+        3068
+        3068
+        Pego processo de prioridade NIVEL3
+        Processo 3068 foi cpu_bound
+        Prioridade de 3068 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal W4IO
+        Processo 3068 foi io_bound
         Filas Vazias, aguardo 10
-        12355
-        De 12355: rajada 3
-        12355
-        12355
+        recebido sinal fim IO
 
+        Prioridade de 3068 aumentou
+        3068
+        3068
+        Pego processo de prioridade NIVEL2
+        Processo 3068 foi cpu_bound
+        Prioridade de 3068 diminuiu
+        3068
+        Pego processo de prioridade NIVEL3
+        recebido sinal W4IO
+        Processo 3068 foi io_bound
         Filas Vazias, aguardo 10
-        12355
+        recebido sinal fim IO
+
+        Prioridade de 3068 aumentou
+        3068
+        3068
+        Pego processo de prioridade NIVEL2
+        Processo 3068 foi cpu_bound
+        Prioridade de 3068 diminuiu
+        3068
+        3068
+
+        Pego processo de prioridade NIVEL3
+        #######################
+        Processo: 3068 terminou
+        #######################
+    Entrada:
+        exec prog2 (2, 3, 4)
+        exec prog2 (1, 2, 4)
+    Saida:
+        PID: 3178 ---- Exec time: 2
+        Pego processo de prioridade NIVEL1
+        Processo 3178 foi cpu_bound
+        Prioridade de 3178 diminuiu
+        3178
+        Pego processo de prioridade NIVEL2
+        recebido sinal W4IO
+        Processo 3178 foi io_bound
+        Filas Vazias, aguardo 10
+        recebido sinal fim IO
+
+        Prioridade de 3178 aumentou
+        3178
+        PID: 3178 ---- Exec time: 3
+        Pego processo de prioridade NIVEL1
+        Parent PID: 3174
+        Processo 3178 foi cpu_bound
+        Prioridade de 3178 diminuiu
+        Pego processo de prioridade NIVEL1
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL2
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3178 foi cpu_bound
+        Prioridade de 3178 diminuiu
+        Pego processo de prioridade NIVEL2
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3178 foi cpu_bound
+        Prioridade de 3178 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3178 foi cpu_bound
+        Prioridade de 3178 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3178 foi cpu_bound
+        Prioridade de 3178 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3178 foi cpu_bound
+        Prioridade de 3178 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3178 foi cpu_bound
+        Prioridade de 3178 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3178 foi cpu_bound
+        Prioridade de 3178 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3178 foi cpu_bound
+        Prioridade de 3178 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3178 foi cpu_bound
+        Prioridade de 3178 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3178 foi cpu_bound
+        Prioridade de 3178 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3178 foi cpu_bound
+        Prioridade de 3178 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3178 foi cpu_bound
+        Prioridade de 3178 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3178 foi cpu_bound
+        Prioridade de 3178 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3178 foi cpu_bound
+        Prioridade de 3178 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3178 foi cpu_bound
+        Prioridade de 3178 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3178 foi cpu_bound
+        recebido sinal fim IO
+        Fila vazia.
+
+        Prioridade de 3178 diminuiu
+        Pego processo de prioridade NIVEL1
+        PID do filho: 3179
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        PID: 3179 ---- Exec time: 1
+
+        recebido sinal W4IO
+        Processo 3179 foi io_bound
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+
+        3178
+        3178
+        Prioridade de 3179 aumentou
+        recebido sinal W4IO
+        Processo 3178 foi io_bound
+        3179
+        PID: 3179 ---- Exec time: 2
+        Pego processo de prioridade NIVEL2
+        recebido sinal fim IO
+
+        Prioridade de 3178 aumentou
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL2
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3178 foi cpu_bound
+        recebido sinal fim IO
+        Fila vazia.
+
+        Prioridade de 3178 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3178 foi cpu_bound
+        recebido sinal fim IO
+        Fila vazia.
+
+        Prioridade de 3178 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3178 foi cpu_bound
+        recebido sinal fim IO
+        Fila vazia.
+
+        Prioridade de 3178 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3178 foi cpu_bound
+        recebido sinal fim IO
+        Fila vazia.
+
+        Prioridade de 3178 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3178 foi cpu_bound
+        recebido sinal fim IO
+        Fila vazia.
+
+        Prioridade de 3178 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3178 foi cpu_bound
+        recebido sinal fim IO
+        Fila vazia.
+
+        Prioridade de 3178 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3179 foi cpu_bound
+        Processo 3179 foi cpu_bound
+
+        recebido sinal fim IO
+        Fila vazia.
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+        3178
+        PID: 3178 ---- Exec time: 4
+
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3178 foi cpu_bound
+        recebido sinal fim IO
+        Fila vazia.
+
+        Prioridade de 3178 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+        3178
+        3178
+        3178
+
+        Processo 3178 foi cpu_bound
+        recebido sinal fim IO
+        Fila vazia.
+
+        Prioridade de 3178 diminuiu
+        3179
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+        3178
+        Eu, 3178, Morri
+
+        recebido sinal fim IO
+        Fila vazia.
+
+        #######################
+        Processo: 3178 terminou
+        #######################
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        Pego processo de prioridade NIVEL3
+        recebido sinal W4IO
+        Processo 3179 foi io_bound
+        3179
+        PID: 3179 ---- Exec time: 4
+        Filas Vazias, aguardo 10
+        recebido sinal fim IO
+
+        Prioridade de 3179 aumentou
+        3179
+        3179
+        Pego processo de prioridade NIVEL2
+        Processo 3179 foi cpu_bound
+        Prioridade de 3179 diminuiu
+        3179
+        3179
+        Eu, 3179, Morri
+        Pego processo de prioridade NIVEL3
+        recebido sinal fim IO
+        Fila vazia.
+
+        #######################
+        Processo: 3179 terminou
+        #######################
 
     Entrada:
-        exec prog1 (1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+        exec prog2 (1, 2, 3)
+        exec prog2 (1, 2, 3)
+        exec prog2 (1, 2, 1)
     Saida:
+        PID: 3335 ---- Exec time: 1
+        Pego processo de prioridade NIVEL1
+        Processo 3335 foi cpu_bound
+        Prioridade de 3335 diminuiu
+        Pego processo de prioridade NIVEL2
+        recebido sinal W4IO
+        Processo 3335 foi io_bound
         Filas Vazias, aguardo 10
-        12355Nome do programa: prog1
-        Dado recebido (Tam): 9
-        Tempos: (1, 2, 3, 4, 5, 4, 3, 2, 1)
-        executando prog1
+        recebido sinal fim IO
 
-        De 12378: rajada 1
-        12378
-        De 12378: rajada 2
-        12378
-
+        Prioridade de 3335 aumentou
+        3335
+        PID: 3335 ---- Exec time: 2
+        Pego processo de prioridade NIVEL1
+        Processo 3335 foi cpu_bound
+        Prioridade de 3335 diminuiu
+        3335
+        Pego processo de prioridade NIVEL2
+        recebido sinal W4IO
+        Processo 3335 foi io_bound
         Filas Vazias, aguardo 10
-        12378
-        De 12378: rajada 3
-        12378
-        12378
+        recebido sinal fim IO
 
+        Prioridade de 3335 aumentou
+        3335
+        PID: 3335 ---- Exec time: 3
+        Pego processo de prioridade NIVEL1
+        Processo 3335 foi cpu_bound
+        Prioridade de 3335 diminuiu
+        3335
+        3335
+        Pego processo de prioridade NIVEL2
+        Processo 3335 foi cpu_bound
+        Prioridade de 3335 diminuiu
+        3335
+        Eu, 3335, Morri
+        Pego processo de prioridade NIVEL3
+        #######################
+        Processo: 3335 terminou
+        #######################
         Filas Vazias, aguardo 10
-        12378
-        De 12378: rajada 4
-        12378
-        12378
-        12378
-
-        Filas Vazias, aguardo 10
-        12378
-        De 12378: rajada 5
-        12378
-        12378
-        12378
-        12378
-
-        Filas Vazias, aguardo 10
-        12378
-        De 12378: rajada 4
-        12378
-        12378
-        12378
-
-        Filas Vazias, aguardo 10
-        12378
-        De 12378: rajada 3
-        12378
-        12378
-
-        Filas Vazias, aguardo 10
-        12378
-        De 12378: rajada 2
-        12378
+        recebido sinal fim IO
+        Fila vazia.
 
         Filas Vazias, aguardo 10
-        12378
-        De 12378: rajada 1
+        Parent PID: 3174
+        Filas Vazias, aguardo 10
+        PID do filho: 3336
+
+        PID: 3336 ---- Exec time: 1
+        Pego processo de prioridade NIVEL1
+        Processo 3336 foi cpu_bound
+        Prioridade de 3336 diminuiu
+        Pego processo de prioridade NIVEL2
+        recebido sinal W4IO
+        Processo 3336 foi io_bound
+        Filas Vazias, aguardo 10
+        recebido sinal fim IO
+
+        Prioridade de 3336 aumentou
+        3336
+        PID: 3336 ---- Exec time: 2
+        Pego processo de prioridade NIVEL1
+        Processo 3336 foi cpu_bound
+        Prioridade de 3336 diminuiu
+        3336
+        Pego processo de prioridade NIVEL2
+        recebido sinal W4IO
+        Processo 3336 foi io_bound
+        Filas Vazias, aguardo 10
+        recebido sinal fim IO
+
+        Prioridade de 3336 aumentou
+        3336
+        PID: 3336 ---- Exec time: 1
+        Pego processo de prioridade NIVEL1
+        Processo 3336 foi cpu_bound
+        Prioridade de 3336 diminuiu
+        3336
+        Eu, 3336, Morri
+        Pego processo de prioridade NIVEL2
+        #######################
+        Processo: 3336 terminou
+        #######################
+        Filas Vazias, aguardo 10
+        recebido sinal fim IO
+        Fila vazia.
 
         Filas Vazias, aguardo 10
-        12378
+        Filas Vazias, aguardo 10
+        Parent PID: 3174
+        Filas Vazias, aguardo 10
+        PID do filho: 3337
+
+        PID: 3337 ---- Exec time: 1
+        Pego processo de prioridade NIVEL1
+        Processo 3337 foi cpu_bound
+        Prioridade de 3337 diminuiu
+        Pego processo de prioridade NIVEL2
+        recebido sinal W4IO
+        Processo 3337 foi io_bound
+        Filas Vazias, aguardo 10
+        recebido sinal fim IO
+
+        Prioridade de 3337 aumentou
+        3337
+        PID: 3337 ---- Exec time: 1
+        Pego processo de prioridade NIVEL1
+        Processo 3337 foi cpu_bound
+        Prioridade de 3337 diminuiu
+        Pego processo de prioridade NIVEL2
+        recebido sinal W4IO
+        Processo 3337 foi io_bound
+        Filas Vazias, aguardo 10
+        recebido sinal fim IO
+
+        Prioridade de 3337 aumentou
+        3337
+        PID: 3337 ---- Exec time: 1
+        Pego processo de prioridade NIVEL1
+        Processo 3337 foi cpu_bound
+        Prioridade de 3337 diminuiu
+        3337
+        Eu, 3337, Morri
+        Pego processo de prioridade NIVEL2
+        #######################
+        Processo: 3337 terminou
+        #######################
+
+
 
 Ordem de execução:
-O nosso escalonador funciona da seguinte maneira. Ele se divide em 3 filas, uma de acordo com o tempo de execução, uma para t=1s, t=2s, t=4s.
-O escalonador vai trabalhar da seguinte maneira, ele vai dar prioriadade a que tem menos tempo de execução, logo ele começa com a fila 1.
-Ao executar todos da fila 1 ele passaria para a fila 2 e então a executaria até acabar o tempo. Após isso, voltaria a checar a fila 1 para ver se não tem mais alguem,
-e se não tivesse, ele então volta a processar a fila 2. Após terminar a 2 ele faria isso com a 3, mas agora checando a 2 e a 1.
-Basicamente, cada vez que for escolher um programa para dar a vez, ele começa a procurar na fila de maior preferência. Se esta estive vazia, o escalonador busca na próxima fila
-Então assim repetindo o processo.
+    O nosso escalonador funciona da seguinte maneira. Ele se divide em 3 filas, uma de acordo com o tempo de execução, uma para t=1s, t=2s, t=4s. O escalonador vai trabalhar da seguinte maneira, ele vai dar prioriadade ao programa que tem menos tempo de execução, logo ele começa com a fila 1. Ao executar todos da fila 1, ele passaria para a fila 2 e então a executaria algum programa lá até acabar o tempo. Após isso, voltaria a checar a fila 1 para ver se não há mais algum programa novo ou velho que subiu de prioridade e está pronto para ser executado. Se não tiver ele então volta a processar a fila 2, fazendo sempre essa checagem. Após terminar a 2 ele faria isso com a 3, mas agora checando a fila 2 e a 1. Basicamente, cada vez que for escolher um programa para dar a vez, ele começa a procurar na fila de maior preferência, se esta estiver vazia, o escalonador busca na próxima fila de maior preferência, se houver alguma, se todas com prioridade acima estiverem vazia, ele executa o programa da fila em que está, então assim repetindo o processo. O programa começa na fila 1 sempre, depois se o tempo de execução passar de 1s, ele tem a sua prioridade diminuida e vai para fila 2, de 2s, lá a mesma coisa da fila 1 acontece, se ele passar do tempo de execução da fila, sua prioridade é dimunuida e ele vai para a fila 3, porém, se seu tempo de execução é menor, sua prioridade é aumentada e ele volta para a fila 1. Se ele vai para a fila 1, o processo se repete, já se ele vai para a 3, acontece a mesma coisa da 2. Caso seu tempo de execução for menor que o da fila, 4s, ele subirá de prioridade e o processo se repetirá, caso contrário, como a fila 3 é a menor, ele continuará lá. Isso ocorrerá até que o programa termine de executar todas suas rajadas. Outra propriedade é que quando o programa que está executando entra em I/O, outro programa que está na fila para ser executado tomará seu lugar. 
 
-Analise:
-Em teoria tudo que deveria acontecer era de acordo com a ordem de execução acima. Porém, não foi bem assim. o problema mais critico, encontrado na data de entrega, foi que, um SIGSTOP
-enviado para um processo que está em sleep(), é ignorado. Com isso a estrutura do escalonador desmorona. Assim sendo, nao conseguimos de fator fazer o escalonador funcionar de maneira
-perfeita. Ele aparenta estar fazendo certo escalonamento, mas não da maneira que esperavamos. 
+Análise:
+    Ao testar nosso escalonador, notamos que ele em geral exatamente como previamos que aconteceria. Ele consegue executar o programa de acordo com os tempos de execução de cada fila, fazendo com que o programa tenha sua prioridade aumentada ou diminuida de acordo com as especificações pedidas, ou seja, se sobrar tempo de execução ele tem sua prioridade aumentada e se executar além do tempo da fila o programa terá sua prioridade diminuida. O programa executa perfeitamente quando há apenas um programa sendo executado por vez. Porém, quando se tem 2 ou mais programas, há uma certa confusão devido ao jeito que tratamos quando um programa entra em I/O, pois ele muda uma variável do struct escalonar dizendo que entrou em I/O, porém outros programas também mudam a mesma variável quando entram em I/O. Fazendo com que um certo loop fique se repetindo até que os programas voltem à estabilidade e o processo então prossiga normalmente. Os programas também conseguem executar suas rajadas de acordo com a fila que estão, não conseguindo executar mais que o tempo permitido pelas filas, porém conseguindo executar por menos tempo e ter sua prioridade aumentada. 

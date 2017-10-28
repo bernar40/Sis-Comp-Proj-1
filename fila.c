@@ -65,7 +65,7 @@ void* fila_retira (Fila* f)
     void *v;
     if (fila_vazia(f))
     {
-        printf("Fila vazia.\n");
+        //printf("Fila vazia.\n");
         return NULL;
     }
         
