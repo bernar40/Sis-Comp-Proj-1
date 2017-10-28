@@ -16,7 +16,7 @@ int main (int argc, char *argv[]){
 			sleep(1);
 		}
 		//condição I/O
-		if(i<tam-1){
+		if(i<(tam-1)){
 			kill(getppid(),SIGUSR1);
 			sleep(3);
 			kill(getppid(),SIGCHLD);

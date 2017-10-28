@@ -148,6 +148,8 @@ int main(void){
 
 //////MODIFICA PRIORIDADE/////////
 void diminui_prioridade(processo *proc){
+	if(proc==NULL)
+		return;
 	printf("\nPrioridade de %d diminuiu",proc->my_pid);
 	switch(proc->nivel_corrente){
 		case NIVEL1:
@@ -166,6 +168,8 @@ void diminui_prioridade(processo *proc){
 	}
 }
 void aumenta_prioridade(processo *proc){
+	if(proc==NULL)
+		return;
 	printf("\nPrioridade de %d aumentou",proc->my_pid);
 	switch(proc->nivel_corrente){
 		case NIVEL1:
