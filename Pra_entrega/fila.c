@@ -33,7 +33,7 @@ Fila* fila_cria (void)
     if (f==NULL)
     {
         printf("erro");
-        exit(1);
+        return NULL;
     }
 
     
@@ -65,8 +65,8 @@ void* fila_retira (Fila* f)
     void *v;
     if (fila_vazia(f))
     {
-        printf("Fila vazia.\n");
-        exit(1);
+        //printf("Fila vazia.\n");
+        return NULL;
     }
         
         t = f->ini;

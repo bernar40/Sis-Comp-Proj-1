@@ -1,4 +1,4 @@
-##################################################
+﻿##################################################
 RELATÓRIO por BERNARDO COSTA RUGA 1511651 e RODRIGO LEITE DA SILVA 1413150
 ##################################################
 
@@ -16,7 +16,7 @@ Arquivos: interpretador.c
 		  saida.txt
 
 
-Compilação:	gcc prog1.c tratador.c -o prog1
+Compilação:	gcc prog2.c tratador.c -o prog2
 
 			gcc interpretador.c fifo.c tratador.c -o interpretador
 
@@ -76,7 +76,7 @@ Testes Interpretador:
 
 Testes Escalonador:
     Entrada:
-        exec prog1 (3, 4, 5)
+        exec prog2 (3, 4, 5)
     Saida:
         Exec_time = (3, 4, 5)
         2970

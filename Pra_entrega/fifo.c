@@ -16,7 +16,7 @@ void cria_fifo(char *FIFO){
 }
 
 int abre_fifo_write(int fpFIFO, char * FIFO){
-    if ((fpFIFO = open(FIFO, O_RDWR | O_NONBLOCK)) < 0){//Abre o fifo para escrita e bloqueia, ele espera os dados serem recebidos
+    if ((fpFIFO = open(FIFO, O_WRONLY | O_NONBLOCK)) < 0){//Abre o fifo para escrita e bloqueia, ele espera os dados serem recebidos
         printf("Erro ao abrir a FIFO: %s\n", FIFO);
         exit (-1);
         }

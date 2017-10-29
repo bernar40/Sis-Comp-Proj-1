@@ -2,12 +2,14 @@
 #include <sys/stat.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <fcntl.h>
+#include <string.h>
 #include <signal.h>
 #include "fila.h"
-#include "fifo.h"
 #define NIVEL1 1
 #define NIVEL2 2
 #define NIVEL3 3
@@ -23,6 +25,7 @@
 typedef struct Processo{
 	int my_pid;
 	int nivel_corrente;
+	int cpu_bound;
 }processo;
 
 typedef struct priority_queue{
@@ -74,9 +77,6 @@ int main(void){
 	
 	/////DECLARAÇÕES//////////////////
 	int my_pid = getpid();
-	remove(FIFO_nome); 
-    remove(FIFO_tam);
-    remove(FIFO_tempos);
 	printf("\nPID Escalonador: %d\n", my_pid);
 	signal(SIGCONT,tratador_interpretador);
 	signal(SIGUSR1,tratador_w4IO);
@@ -95,49 +95,60 @@ int main(void){
 
 	///LOOP ESCALONADOR///////////////
 	for(EVER){
+		escal->ativo=NULL;
 		if(!fila_vazia(escal->nivel_1->fila_Prioridade)){
 			escal->ativo = (processo*)fila_retira(escal->nivel_1->fila_Prioridade);
 			escal->cota = escal->nivel_1->tempo_cota;
+			//printf("\n\tPego do NIVEL1");
 		}
 		else if(!fila_vazia(escal->nivel_2->fila_Prioridade)){
 
 			escal->ativo = (processo*)fila_retira(escal->nivel_2->fila_Prioridade);
 			escal->cota = escal->nivel_2->tempo_cota;
+			//printf("\n\tPego do NIVEL2");
 		}
 		else if(!fila_vazia(escal->nivel_3->fila_Prioridade)){
 			escal->ativo = (processo*)fila_retira(escal->nivel_3->fila_Prioridade);
 			escal->cota = escal->nivel_3->tempo_cota;
+			//printf("\n\tPego do NIVEL3");
 		}
 		else {
-			printf("\nFilas Vazias, aguardo %d\n",ESPERA);
-			//test();
-			recebe_processo();
+			printf("\n\tFilas Vazias, aguardo %d",ESPERA);
+			//Era isso _V_ que estava dando ruim
+			//recebe_processo();
 			sleep(ESPERA);
 			continue;
 		}
 		///////AGUARDA FILHO//////////////
-		escal->cpu_bound = 1;
+		escal->ativo->cpu_bound = 1;
 		escal->terminou = 0;
+		//printf("Enviando SIGCONT para PID: %d\n", escal->ativo->my_pid);
 		kill(escal->ativo->my_pid,SIGCONT);
-		kill(escal->ativo->my_pid,SIGUSR2);
-		sleep(escal->cota);
+		//kill(escal->ativo->my_pid,SIGUSR2);
+		for(int i=0;i<escal->cota;i++){
+			sleep(1);
+		}
 		if(escal->terminou){
-			printf("\n#######################\nProcesso: %d terminou\n#######################",escal->ativo->my_pid);
+			printf("\n\tProcesso: %d terminou\n",escal->ativo->my_pid);
 			free(escal->ativo);
+			continue;
 		}
 		else{
-			if(escal->cpu_bound){
-				//printf("\nProcesso %d foi cpu_bound\n\t(escalonador interrompeu ele)",escal->ativo->my_pid);
+			if(escal->ativo->cpu_bound){
+				//printf("\n\tProcesso %d foi cpu_bound",escal->ativo->my_pid);
 				kill(escal->ativo->my_pid,SIGSTOP);
-				kill(escal->ativo->my_pid,SIGUSR1);
+				//kill(escal->ativo->my_pid,SIGUSR1);
 				diminui_prioridade(escal->ativo);
+				continue;
 			}
 			else{
-				//printf("\nProcesso %d foi io_bound\n\t(escalonador foi acordado por ele)",escal->ativo->my_pid);
+				//printf("\n\tProcesso %d foi io_bound",escal->ativo->my_pid);
 				fila_insere(escal->processos_io,escal->ativo);
+				continue;
 			}
 		}
 		//////////////////////////////////
+		continue;
 	}
 	//////////////////////////////////
 	return 0;
@@ -145,7 +156,9 @@ int main(void){
 
 //////MODIFICA PRIORIDADE/////////
 void diminui_prioridade(processo *proc){
-	//printf("\nPrioridade de %d diminuiu",proc->my_pid);
+	if(proc==NULL)
+		return;
+	//printf("\n\tPrioridade de %d diminuiu",proc->my_pid);
 	switch(proc->nivel_corrente){
 		case NIVEL1:
 			proc->nivel_corrente = NIVEL2;
@@ -163,7 +176,9 @@ void diminui_prioridade(processo *proc){
 	}
 }
 void aumenta_prioridade(processo *proc){
-	//printf("\nPrioridade de %d aumentou",proc->my_pid);
+	if(proc==NULL)
+		return;
+	//printf("\n\tPrioridade de %d aumentou",proc->my_pid);
 	switch(proc->nivel_corrente){
 		case NIVEL1:
 			proc->nivel_corrente = NIVEL1;
@@ -188,97 +203,113 @@ void aumenta_prioridade(processo *proc){
 
 //////FUNÇÃO PARA INTERPRETADOR///
 void recebe_processo(){
-
+	//printf("entrou no recebe");
 	int pid;
 	int my_pid;
 	char *argv[3];
-	int fpFIFO_nome, fpFIFO_tam, fpFIFO_tempos;
 	int tam;
-	int *exect;
-	char name[MAX_BUF];
-	char params[MAX_BUF];
-
+	int seg_nome, seg_tam, seg_tp;
+	char *p_nome, *p_tempos, n[100], t[100];
 /*	int fd;
 	char *myfifo = "/tmp/myfifo";
 	char buf[1024];*/
 
 	if((pid=fork())!=0){	//PAI
+		//printf("to no pai");
+		//printf("\nParent PID: %d", getpid());
 		processo *new_processo = (processo*) malloc(sizeof(processo));
 		new_processo->my_pid = pid;
 		new_processo->nivel_corrente = NIVEL1;
 		fila_insere((escal->nivel_1->fila_Prioridade),new_processo);
 	}
 	else if(pid == 0){
+		//printf("to no filho");
 		my_pid = getpid();
 		signal(SIGUSR1,SIG_DFL);
 		signal(SIGUSR2,SIG_DFL);
 		signal(SIGCHLD,SIG_DFL);
 		signal(SIGCONT,SIG_DFL);
+		//printf("\nPID do filho: %d", my_pid);
+	    seg_nome = shmget(3000, 100*sizeof(char), IPC_CREAT | S_IRUSR | S_IWUSR);
+	    seg_tp = shmget(3200, 100*sizeof(char), IPC_CREAT | S_IRUSR | S_IWUSR);
 
-	    cria_fifo(FIFO_nome);
-	    cria_fifo(FIFO_tam);
-	    cria_fifo(FIFO_tempos);
+	    if (seg_nome < 0 || seg_tp < 0){
+	        puts("erro no shmget");
+	        exit(-1);
+	    }
+	    p_nome = (char *) shmat(seg_nome, 0, 0);
+	    p_tempos = (char *)shmat(seg_tp, 0 ,0);
 
-		//LOOP do FILHO
-		/*fd = open(myfifo, O_RDONLY);
-		read(fd, buf, 1024);
-		printf("Received: %s \n", buf);
-		close(fd);*/
-		
-	    fpFIFO_nome = abre_fifo_read(fpFIFO_nome, FIFO_nome); //abre FIFOO NOME %d\n", fpFIFO_nome);
-		read(fpFIFO_nome, name, MAX_BUF); //le o nome do programa e o poe no vetor name
-		
+	    if (p_nome == NULL || p_tempos == NULL){
+	        puts("erro no shmat");
+	        exit(-2);
+	    }
 
-		fpFIFO_tam = abre_fifo_read(fpFIFO_tam, FIFO_tam);
-		read(fpFIFO_tam, &tam, sizeof(int)); //le o tam do vetor exect no interpretador pra criar um igual aqui e o poe na var tam name
-		
+		strcpy(n, p_nome);
+	    strcpy(t, p_tempos);
 
-		fpFIFO_tempos = abre_fifo_read(fpFIFO_tempos, FIFO_tempos);
-		exect = (int *)malloc((tam*sizeof(int)));
-		/*for (int i=0; i<tam; i++){
-			read(fpFIFO_tempos, &exect[1], sizeof(int)); //le cada indice do vetor exect no interpretador e os poe no vetor exect
-			printf("%d\n",exect[1]);
-		}*/
-		
-		//read adaptado
-		read(fpFIFO_tempos, params, MAX_BUF);
-		
-		
-		//fecha os FIFOs
-		//close(fpFIFO_nome); 
-		//close(fpFIFO_tam);
-		//close(fpFIFO_tempos);
-		if (tam){
-			printf("Nome do programa: %s\n", name);
-			printf("Dado recebido (Tam): %d\n", tam);
-			printf("Tempos: %s\n", params);
-			printf("executando %s\n", name);
+	    //printf("\nNome: %s ----- tempos: %s", n, t);
 
-			argv[0] = name;
-			argv[1] = params;
-			argv[2] = NULL;
+	    shmdt(p_nome);
+	    shmdt(p_tempos);
 
+	    shmctl (seg_nome, IPC_RMID, 0);
+	    shmctl (seg_tp, IPC_RMID, 0);
 
-			execv(name, argv);
+		argv[0] = n;
+		argv[1] = t;
+		argv[2] = NULL;
 
-		}
-
-		
+		execv(n, argv);
 	}
-	
+
 
 }
+
+void test(){
+    int seg_nome, seg_tp;
+    char *p_nome, *p_tempos, n[100], t[100];
+
+    seg_nome = shmget(3000, 100*sizeof(char), IPC_CREAT | S_IRUSR | S_IWUSR);
+    seg_tp = shmget(3200, 100*sizeof(char), IPC_CREAT | S_IRUSR | S_IWUSR);
+
+    if (seg_nome < 0 || seg_tp < 0){
+        puts("\nerro no shmget");
+        exit(-1);
+    }
+    p_nome = (char *) shmat(seg_nome, 0, 0);
+    p_tempos = (char *)shmat(seg_tp, 0 ,0);
+
+    if (p_nome == NULL || p_tempos == NULL){
+        puts("\nerro no shmat");
+        exit(-2);
+    }
+
+	strcpy(n, p_nome);
+    strcpy(t, p_tempos);
+
+    //printf("\nNome: %s ----- tempos: %s", n, t);
+
+    shmdt(p_nome);
+    shmdt(p_tempos);
+
+    shmctl (seg_nome, IPC_RMID, 0);
+    shmctl (seg_tp, IPC_RMID, 0);
+}
+
+
 //////////////////////////////////
 
 ///////TRATADORES DE SINAL////////
 //trata o filho estar "waiting for I/O"
 //indica que o filho terminou antes que o pai, ao mesmo tempo despertando-o do sono
 void tratador_w4IO(int signal){
-	escal->cpu_bound = 0;
+	//printf("\nrecebido sinal W4IO");
+	escal->ativo->cpu_bound = 0;
 }
 void tratador_fimIO(int signal){
-	
-	aumenta_prioridade((processo*)(escal->processos_io));
+	//printf("\nrecebido sinal fim IO");
+	aumenta_prioridade((processo*)fila_retira(escal->processos_io));
 }
 
 void tratador_termino_filho(int signal){
@@ -286,29 +317,6 @@ void tratador_termino_filho(int signal){
 }
 void tratador_interpretador(int signal){
 	recebe_processo();
+	//test();
 }
 
-void test(){
-	int fpFIFO_nome, fpFIFO_tam, fpFIFO_tempos;
-	int tam, i;
-	int *exect;
-	char name[MAX_BUF];
-    fpFIFO_nome = abre_fifo_read(fpFIFO_nome, FIFO_nome); //abre FIFO
-	read(fpFIFO_nome, name, sizeof(MAX_BUF)); //le o nome do programa e o poe no vetor name
-	printf("%s\n", name);
-
-	fpFIFO_tam = abre_fifo_read(fpFIFO_tam, FIFO_tam);
-	read(fpFIFO_tam, &tam, sizeof(int)); //le o tam do vetor exect no interpretador pra criar um igual aqui e o poe na var tam name
-	printf("%d\n", tam);
-
-	fpFIFO_tempos = abre_fifo_read(fpFIFO_tempos, FIFO_tempos);
-	exect = (int *)malloc((tam*sizeof(int)));
-	for (i=0; i<tam; i++){
-		read(fpFIFO_tempos, &exect[1], sizeof(int)); //le cada indice do vetor exect no interpretador e os poe no vetor exect
-		printf("%d\n",exect[1]);
-	}
-	//fecha os FIFOs
-	close(fpFIFO_nome); 
-	close(fpFIFO_tam);
-	close(fpFIFO_tempos);
-}
