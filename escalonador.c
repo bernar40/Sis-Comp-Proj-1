@@ -25,6 +25,7 @@
 typedef struct Processo{
 	int my_pid;
 	int nivel_corrente;
+	int cpu_bound;
 }processo;
 
 typedef struct priority_queue{
@@ -119,7 +120,7 @@ int main(void){
 			continue;
 		}
 		///////AGUARDA FILHO//////////////
-		escal->cpu_bound = 1;
+		escal->ativo->cpu_bound = 1;
 		escal->terminou = 0;
 		//printf("Enviando SIGCONT para PID: %d\n", escal->ativo->my_pid);
 		kill(escal->ativo->my_pid,SIGCONT);
@@ -133,7 +134,7 @@ int main(void){
 			continue;
 		}
 		else{
-			if(escal->cpu_bound){
+			if(escal->ativo->cpu_bound){
 				//printf("\n\tProcesso %d foi cpu_bound",escal->ativo->my_pid);
 				kill(escal->ativo->my_pid,SIGSTOP);
 				//kill(escal->ativo->my_pid,SIGUSR1);
@@ -304,7 +305,7 @@ void test(){
 //indica que o filho terminou antes que o pai, ao mesmo tempo despertando-o do sono
 void tratador_w4IO(int signal){
 	//printf("\nrecebido sinal W4IO");
-	escal->cpu_bound = 0;
+	escal->ativo->cpu_bound = 0;
 }
 void tratador_fimIO(int signal){
 	//printf("\nrecebido sinal fim IO");
