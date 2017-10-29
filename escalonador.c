@@ -94,25 +94,26 @@ int main(void){
 
 	///LOOP ESCALONADOR///////////////
 	for(EVER){
+		escal->ativo=NULL;
 		if(!fila_vazia(escal->nivel_1->fila_Prioridade)){
 			escal->ativo = (processo*)fila_retira(escal->nivel_1->fila_Prioridade);
 			escal->cota = escal->nivel_1->tempo_cota;
-			printf("\nPego processo de prioridade NIVEL1");
+			//printf("\n\tPego do NIVEL1");
 		}
 		else if(!fila_vazia(escal->nivel_2->fila_Prioridade)){
 
 			escal->ativo = (processo*)fila_retira(escal->nivel_2->fila_Prioridade);
 			escal->cota = escal->nivel_2->tempo_cota;
-			printf("\nPego processo de prioridade NIVEL2");
+			//printf("\n\tPego do NIVEL2");
 		}
 		else if(!fila_vazia(escal->nivel_3->fila_Prioridade)){
 			escal->ativo = (processo*)fila_retira(escal->nivel_3->fila_Prioridade);
 			escal->cota = escal->nivel_3->tempo_cota;
-			printf("\nPego processo de prioridade NIVEL3");
+			//printf("\n\tPego do NIVEL3");
 		}
 		else {
-			printf("\nFilas Vazias, aguardo %d",ESPERA);
-			//test();
+			printf("\n\tFilas Vazias, aguardo %d",ESPERA);
+			//Era isso _V_ que estava dando ruim
 			//recebe_processo();
 			sleep(ESPERA);
 			continue;
@@ -123,24 +124,30 @@ int main(void){
 		//printf("Enviando SIGCONT para PID: %d\n", escal->ativo->my_pid);
 		kill(escal->ativo->my_pid,SIGCONT);
 		//kill(escal->ativo->my_pid,SIGUSR2);
-		sleep(escal->cota);
+		for(int i=0;i<escal->cota;i++){
+			sleep(1);
+		}
 		if(escal->terminou){
-			printf("\n#######################\nProcesso: %d terminou\n#######################",escal->ativo->my_pid);
+			printf("\n\tProcesso: %d terminou\n",escal->ativo->my_pid);
 			free(escal->ativo);
+			continue;
 		}
 		else{
 			if(escal->cpu_bound){
-				printf("\nProcesso %d foi cpu_bound",escal->ativo->my_pid);
+				//printf("\n\tProcesso %d foi cpu_bound",escal->ativo->my_pid);
 				kill(escal->ativo->my_pid,SIGSTOP);
 				//kill(escal->ativo->my_pid,SIGUSR1);
 				diminui_prioridade(escal->ativo);
+				continue;
 			}
 			else{
-				printf("\nProcesso %d foi io_bound",escal->ativo->my_pid);
+				//printf("\n\tProcesso %d foi io_bound",escal->ativo->my_pid);
 				fila_insere(escal->processos_io,escal->ativo);
+				continue;
 			}
 		}
 		//////////////////////////////////
+		continue;
 	}
 	//////////////////////////////////
 	return 0;
@@ -150,7 +157,7 @@ int main(void){
 void diminui_prioridade(processo *proc){
 	if(proc==NULL)
 		return;
-	printf("\nPrioridade de %d diminuiu",proc->my_pid);
+	//printf("\n\tPrioridade de %d diminuiu",proc->my_pid);
 	switch(proc->nivel_corrente){
 		case NIVEL1:
 			proc->nivel_corrente = NIVEL2;
@@ -170,7 +177,7 @@ void diminui_prioridade(processo *proc){
 void aumenta_prioridade(processo *proc){
 	if(proc==NULL)
 		return;
-	printf("\nPrioridade de %d aumentou",proc->my_pid);
+	//printf("\n\tPrioridade de %d aumentou",proc->my_pid);
 	switch(proc->nivel_corrente){
 		case NIVEL1:
 			proc->nivel_corrente = NIVEL1;
@@ -208,7 +215,7 @@ void recebe_processo(){
 
 	if((pid=fork())!=0){	//PAI
 		//printf("to no pai");
-		printf("\nParent PID: %d", getpid());
+		//printf("\nParent PID: %d", getpid());
 		processo *new_processo = (processo*) malloc(sizeof(processo));
 		new_processo->my_pid = pid;
 		new_processo->nivel_corrente = NIVEL1;
@@ -221,7 +228,7 @@ void recebe_processo(){
 		signal(SIGUSR2,SIG_DFL);
 		signal(SIGCHLD,SIG_DFL);
 		signal(SIGCONT,SIG_DFL);
-		printf("\nPID do filho: %d", my_pid);
+		//printf("\nPID do filho: %d", my_pid);
 	    seg_nome = shmget(3000, 100*sizeof(char), IPC_CREAT | S_IRUSR | S_IWUSR);
 	    seg_tp = shmget(3200, 100*sizeof(char), IPC_CREAT | S_IRUSR | S_IWUSR);
 
@@ -240,7 +247,7 @@ void recebe_processo(){
 		strcpy(n, p_nome);
 	    strcpy(t, p_tempos);
 
-	    printf("\nNome: %s ----- tempos: %s", n, t);
+	    //printf("\nNome: %s ----- tempos: %s", n, t);
 
 	    shmdt(p_nome);
 	    shmdt(p_tempos);
@@ -280,7 +287,7 @@ void test(){
 	strcpy(n, p_nome);
     strcpy(t, p_tempos);
 
-    printf("\nNome: %s ----- tempos: %s", n, t);
+    //printf("\nNome: %s ----- tempos: %s", n, t);
 
     shmdt(p_nome);
     shmdt(p_tempos);
@@ -296,11 +303,11 @@ void test(){
 //trata o filho estar "waiting for I/O"
 //indica que o filho terminou antes que o pai, ao mesmo tempo despertando-o do sono
 void tratador_w4IO(int signal){
-	printf("\nrecebido sinal W4IO");
+	//printf("\nrecebido sinal W4IO");
 	escal->cpu_bound = 0;
 }
 void tratador_fimIO(int signal){
-	printf("\nrecebido sinal fim IO\n");
+	//printf("\nrecebido sinal fim IO");
 	aumenta_prioridade((processo*)fila_retira(escal->processos_io));
 }
 
