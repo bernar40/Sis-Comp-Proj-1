@@ -18,6 +18,7 @@ int main (int argc, char *argv[]){
 		}
 		//condição I/O
 		if(i<(tam-1)){
+			printf("\n%d\tentrou em IO",getpid());
 			kill(getppid(),SIGUSR1);
 			sleep(3);
 			kill(getppid(),SIGCHLD);
