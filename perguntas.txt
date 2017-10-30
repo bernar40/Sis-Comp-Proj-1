@@ -1,0 +1,17 @@
+A1:
+
+qual foi a cominucacao entre os 2?
+quem que trata?
+voce tem algum limite de rajadas? 
+trata sem rajada?
+-------------------------------
+A2:
+
+O que acontece quando o proc executa e ele troca de nivel?
+Como ele trata os sinais eu acho
+Como que voces implementaram IO
+-------------------------------
+
+qualquer um:
+
+ o esc eh possivel tracar 2 processos de Io ao mesmo tempo? os 2
